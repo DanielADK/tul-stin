@@ -1,0 +1,25 @@
+name: Run PHPUnit Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ctype, dom, json, libxml, mbstring, pdo, phar, sqlite3, tokenizer, xml, xmlwriter
+          tools: composer, phpunit, phpstan
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPUnit Tests
+        run: vendor/bin/phpunit tests

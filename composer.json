@@ -1,0 +1,22 @@
+{
+    "name": "daniekadamek/stin-semestral-weatherapp",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "StinWeatherApp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Daniel Adamek",
+            "email": "daniel.adamek@tul.cz"
+        }
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "^1.10"
+    },
+    "require": {
+        "ext-sqlite3": "*",
+        "ext-pdo": "*"
+    }
+}

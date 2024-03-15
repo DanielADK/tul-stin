@@ -23,9 +23,10 @@ abstract class Db {
 	}
 
 	/**
-	 * @param array<string, mixed> $params
 	 *
-	 * @return array<string, mixed>
+	 * @param array<string, int|string|DateTime> $params
+	 *
+	 * @return array<string, int|string>
 	 */
 	private static function processParameters(array $params = array()): array {
 		$new_params = array();

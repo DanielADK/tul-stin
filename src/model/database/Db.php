@@ -23,7 +23,7 @@ abstract class Db {
 	}
 
 	/**
-	 *
+	 * Processes parameters to convert them into a database-friendly format.
 	 * @param array<string, int|string|DateTime> $params
 	 *
 	 * @return array<string, int|string>

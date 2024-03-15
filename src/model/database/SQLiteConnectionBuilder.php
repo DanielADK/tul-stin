@@ -13,7 +13,7 @@ class SQLiteConnectionBuilder extends Db implements ConnectionBuilder {
 		return $this;
 	}
 
-	public function getDatabase(string $database): string {
+	public function getDatabase(): string {
 		return $this->database;
 	}
 

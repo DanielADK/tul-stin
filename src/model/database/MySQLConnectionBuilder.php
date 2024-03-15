@@ -16,9 +16,17 @@ class MySQLConnectionBuilder extends Db implements ConnectionBuilder {
 		return $this;
 	}
 
+	public function getHost(): string {
+		return $this->host;
+	}
+
 	public function setUsername(string $username): MySQLConnectionBuilder {
 		$this->username = $username;
 		return $this;
+	}
+
+	public function getUsername(): string {
+		return $this->username;
 	}
 
 	public function setPassword(string $password): MySQLConnectionBuilder {
@@ -26,9 +34,17 @@ class MySQLConnectionBuilder extends Db implements ConnectionBuilder {
 		return $this;
 	}
 
+	public function getPassword(): string {
+		return $this->password;
+	}
+
 	public function setDatabase(string $database): MySQLConnectionBuilder {
 		$this->database = $database;
 		return $this;
+	}
+
+	public function getDatabase(): string {
+		return $this->database;
 	}
 
 	public function buildConnection(): void {

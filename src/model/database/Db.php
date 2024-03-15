@@ -5,7 +5,7 @@ use DateTime;
 use PDO;
 use PDOException;
 
-class Db {
+abstract class Db {
 	protected static PDO $connection;
 
 	/**

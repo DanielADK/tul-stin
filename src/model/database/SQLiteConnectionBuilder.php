@@ -13,6 +13,10 @@ class SQLiteConnectionBuilder extends Db implements ConnectionBuilder {
 		return $this;
 	}
 
+	public function getDatabase(string $database): string {
+		return $this->database;
+	}
+
 	public function buildConnection(): void {
 		try {
 			self::$connection = @new PDO(

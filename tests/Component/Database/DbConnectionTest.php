@@ -2,8 +2,11 @@
 
 namespace Component\Database;
 
+use DateTime;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use StinWeatherApp\Component\Database\Db;
+use ReflectionMethod;
 
 class DbConnectionTest extends TestCase {
 	/**

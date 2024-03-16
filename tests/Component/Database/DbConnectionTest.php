@@ -1,8 +1,9 @@
 <?php
 
-use StinWeatherApp\model\database\Db;
+namespace Component\Database;
+
 use PHPUnit\Framework\TestCase;
-Use DateTime;
+use StinWeatherApp\Component\Database\Db;
 
 class DbConnectionTest extends TestCase {
 	/**

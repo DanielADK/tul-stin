@@ -18,6 +18,7 @@
     },
     "require": {
         "ext-sqlite3": "*",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "twig/twig": "^3.0"
     }
 }

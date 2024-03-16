@@ -1,9 +1,8 @@
 <?php
-namespace StinWeatherApp\model\database;
+namespace StinWeatherApp\Component\Database;
 
 use DateTime;
 use PDO;
-use PDOException;
 
 abstract class Db {
 	protected static PDO $connection;

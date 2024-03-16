@@ -1,7 +1,9 @@
 <?php
 
-use StinWeatherApp\model\database\SQLiteConnectionBuilder;
+namespace Component\Database;
+
 use PHPUnit\Framework\TestCase;
+use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
 
 class SQLiteConnectionBuilderTest extends TestCase {
 	public function testBuild(): void {

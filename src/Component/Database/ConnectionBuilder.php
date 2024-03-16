@@ -1,6 +1,6 @@
 <?php
 
-namespace StinWeatherApp\model\database;
+namespace StinWeatherApp\Component\Database;
 
 interface ConnectionBuilder {
 	public function buildConnection(): void;

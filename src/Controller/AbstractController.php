@@ -28,8 +28,12 @@ abstract class AbstractController {
 			ob_start();
 			include($viewPath);
 			$content = ob_get_clean();
+			if (is_string($content)) {
+				return (new Response($content, 200))->setHTML();
+			}
 
-			return (new Response($content, 200))->setHTML();
+			throw new Exception("Cant render content of view: {$viewName}");
+
 		} else {
 			throw new Exception("View {$viewName} not found.");
 		}

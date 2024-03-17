@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: PHPUnit Tests
+    name: PHPUnit Tests & Coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -23,3 +23,6 @@ jobs:
 
       - name: Run PHPUnit Tests
         run: vendor/bin/phpunit tests
+
+      - name: Checkout code
+        uses: actions/checkout@v2

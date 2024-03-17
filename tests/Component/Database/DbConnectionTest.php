@@ -12,7 +12,7 @@ class DbConnectionTest extends TestCase {
 	/**
 	 * @throws ReflectionException
 	 */
-	public function testProcessParametersWithDateTime() {
+	public function testProcessParametersWithDateTime(): void {
 		$reflectionMethod = new ReflectionMethod(Db::class, 'processParameters');
 
 		$params = [

@@ -19,6 +19,9 @@ class Response {
 	public function __construct(string $content = "", int $statusCode = 200, array $headers = array()) {
 		$this->setContent($content);
 		$this->setStatusCode($statusCode);
+		foreach ($headers as $header) {
+			$this->setHeader($header);
+		}
 	}
 
 	public function setHTML(): Response {
@@ -53,6 +56,10 @@ class Response {
 	public function setStatusCode(int $statusCode): Response {
 		$this->statusCode = $statusCode;
 		return $this;
+	}
+
+	public function getStatusCode(): int {
+		return $this->statusCode;
 	}
 
 	public function sendHeaders(): void {

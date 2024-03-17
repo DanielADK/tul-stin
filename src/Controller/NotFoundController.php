@@ -2,22 +2,16 @@
 
 namespace StinWeatherApp\Controller;
 
-use Exception;
 use StinWeatherApp\Component\Http\Response;
 
 /**
- * Class HomeController
+ * Class NotFoundController
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @package StinWeatherApp\Controller
  */
-final class HomeController extends AbstractController {
-	/**
-	 * Index action
-	 *
-	 * @throws Exception
-	 */
+final class NotFoundController extends AbstractController {
 	public function index(): Response {
-		return $this->render("index");
+		return new Response("Page not found", 404);
 	}
 }

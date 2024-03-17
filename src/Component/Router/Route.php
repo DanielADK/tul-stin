@@ -2,6 +2,8 @@
 
 namespace StinWeatherApp\Component\Router;
 
+use StinWeatherApp\Component\Http\Method;
+
 /**
  * Class Route
  *
@@ -26,9 +28,9 @@ final class Route {
 	private string $controllerMethod;
 
 	/**
-	 * @var string $httpMethod The HTTP method of the route (GET, POST, etc.)
+	 * @var Method $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 */
-	private string $httpMethod;
+	private Method $httpMethod;
 
 	/**
 	 * Route constructor.
@@ -36,9 +38,9 @@ final class Route {
 	 * @param string $path The path of the route
 	 * @param string $controller The controller that handles the route
 	 * @param string $controllerMethod The method in the controller that handles the route
-	 * @param string $httpMethod The HTTP method of the route (GET, POST, etc.)
+	 * @param Method $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 */
-	public function __construct(string $path, string $controller, string $controllerMethod, string $httpMethod) {
+	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod) {
 		if (!class_exists($controller)) {
 			throw new \InvalidArgumentException("Controller class does not exist: $controller");
 		}
@@ -112,10 +114,10 @@ final class Route {
 	/**
 	 * Set the HTTP method of the route (GET, POST, etc.)
 	 *
-	 * @param string $httpMethod The HTTP method of the route (GET, POST, etc.)
+	 * @param Method $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 * @return Route The current route instance
 	 */
-	public function setHttpMethod(string $httpMethod): Route {
+	public function setHttpMethod(Method $httpMethod): Route {
 		$this->httpMethod = $httpMethod;
 		return $this;
 	}
@@ -123,9 +125,9 @@ final class Route {
 	/**
 	 * Get the HTTP method of the route (GET, POST, etc.)
 	 *
-	 * @return string The HTTP method of the route (GET, POST, etc.)
+	 * @return Method The HTTP method of the route (GET, POST, etc.)
 	 */
-	public function getHttpMethod(): string {
+	public function getHttpMethod(): Method {
 		return $this->httpMethod;
 	}
 

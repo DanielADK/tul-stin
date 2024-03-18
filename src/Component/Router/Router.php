@@ -115,7 +115,6 @@ class Router {
 					return $response;
 				}
 			}
-			error_log("No route matches the request: $requestUri");
 			// If no route matches the request, send a 404 response.
 			return $this->redirect(
 				path: $this->notFoundRoute->getPath());

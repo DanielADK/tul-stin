@@ -42,7 +42,7 @@ abstract class Db {
 	 * One row query
 	 *
 	 * @param string $query
-	 * @param array<string, mixed> $params
+	 * @param array<string, int|string> $params
 	 *
 	 * @return mixed
 	 */
@@ -57,7 +57,7 @@ abstract class Db {
 	 * All rows query
 	 *
 	 * @param string               $query
-	 * @param array<string, mixed> $params
+	 * @param array<string, int|string> $params
 	 *
 	 * @return false|array<string, mixed>
 	 */
@@ -72,7 +72,7 @@ abstract class Db {
 	 * One row, one column query
 	 *
 	 * @param string $query
-	 * @param array<string, mixed> $params
+	 * @param array<string, DateTime|int|string> $params
 	 *
 	 * @return mixed
 	 */

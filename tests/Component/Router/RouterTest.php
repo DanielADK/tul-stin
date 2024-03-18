@@ -107,7 +107,6 @@ class RouterTest extends TestCase {
 		for ($i = 0; $i < $numOfRoutes; $i++) {
 			$this->router->addRoute("/test$i", TestController::class, 'testMethod', Method::GET);
 		}
-		echo "$numOfRoutes routes added\n";
 
 		// Create an array with all paths in random order
 		$paths = range(0, $numOfRoutes-1);
@@ -124,6 +123,6 @@ class RouterTest extends TestCase {
 
 		// Print the time to search for all routes
 		$time = $end - $start;
-		echo "Time to search for $numOfRoutes routes: $time seconds\n";
+		$this->assertLessThanOrEqual(10, $time);
 	}
 }

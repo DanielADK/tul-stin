@@ -19,7 +19,7 @@ use StinWeatherApp\Component\Http\Method;
 class Router {
 
 	/**
-	 * @var array<Route> $routes The routes that the router will handle.
+	 * @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object.
 	 */
 	private array $routes = array();
 	/**
@@ -27,9 +27,12 @@ class Router {
 	 */
 	private Route $notFoundRoute;
 
+	/**
+	 * Router constructor.
+	 */
 	public function __construct() {
 		$this->notFoundRoute = new Route("/not-found", NotFoundController::class, "index", Method::GET);
-		$this->routes[] = $this->notFoundRoute;
+		$this->addRoute($this->notFoundRoute->getPath(), $this->notFoundRoute->getController(), $this->notFoundRoute->getControllerMethod(), $this->notFoundRoute->getHttpMethod());
 	}
 
 	/**
@@ -41,7 +44,7 @@ class Router {
 	 * @param Method $httpMethod The HTTP method that the route will respond to.
 	 */
 	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET): void {
-		$this->routes[] = new Route($path, $controller, $controllerMethod, $httpMethod);
+		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod);
 	}
 
 	/**
@@ -51,12 +54,7 @@ class Router {
 	 * @return Route|null The matching route, or null if no route matches the path.
 	 */
 	public function getRouteByPath(string $path): ?Route {
-		foreach ($this->routes as $route) {
-			if ($route->getPath() === $path) {
-				return $route;
-			}
-		}
-		return null;
+		return $this->routes[$path] ?? null;
 	}
 
 	/**
@@ -76,7 +74,7 @@ class Router {
 	 */
 	public function setNotFound(string $path, string $controller, string $controllerMethod = "index"): void {
 		$this->notFoundRoute = new Route($path, $controller, $controllerMethod, Method::GET);
-		$this->routes[] = $this->notFoundRoute;
+		$this->routes[$this->notFoundRoute->getPath()] = $this->notFoundRoute;
 	}
 
 	/**
@@ -96,28 +94,27 @@ class Router {
 	 */
 	public function dispatch(string $requestUri, Method $requestMethod): Response {
 		try {
-			// Iterate through routes -> find the first one that matches the request.
-			foreach ($this->routes as $route) {
-				if ($route instanceof Route) {
-					// If the route matches the request, call the controller method and return the response.
-					if ($route->getPath() === $requestUri && $route->getHttpMethod() === $requestMethod) {
-						$controller = new ($route->getController());
-						if (!method_exists($controller, $route->getControllerMethod())) {
-							throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");
-						}
-						$response = $controller->{$route->getControllerMethod()}();
-
-						// If the controller action returns a Response object, send it to the client.
-						if ($response instanceof Response) {
-							$response->send();
-						} else {
-							// If the controller action does not return a Response object, throw an exception.
-							throw new Exception("Controller action must return an instance of Response");
-						}
-						return $response;
+			// Find by index
+			$route = $this->getRouteByPath($requestUri);
+			if ($route instanceof Route) {
+				// If the route matches the request, call the controller method and return the response.
+				if ($route->getPath() === $requestUri && $route->getHttpMethod() === $requestMethod) {
+					$controller = new ($route->getController());
+					if (!method_exists($controller, $route->getControllerMethod())) {
+						throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");
 					}
+					$response = $controller->{$route->getControllerMethod()}();
+
+					// If the controller action returns a Response object, send it to the client.
+					if ($response instanceof Response) {
+						$response->send();
+					} else {
+						// If the controller action does not return a Response object, throw an exception.
+						throw new Exception("Controller action must return an instance of Response");
+					}
+					return $response;
 				}
-			};
+			}
 			error_log("No route matches the request: $requestUri");
 			// If no route matches the request, send a 404 response.
 			return $this->redirect(

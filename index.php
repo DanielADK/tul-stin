@@ -15,7 +15,7 @@ $router = new Router();
 // Connect
 try {
 	$conn = new SQLiteConnectionBuilder();
-	$conn->setDatabase('db/weather.sqlite3');
+	$conn->setDatabase('db/weather.sqlite');
 	$conn->buildConnection();
 	Db::connect($conn);
 } catch (PDOException $e) {

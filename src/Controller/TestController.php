@@ -6,7 +6,7 @@ use StinWeatherApp\Component\Http\Response;
 use StinWeatherApp\Controller\AbstractController;
 
 /**
- * Class TestController
+ * Class TestController - only for testing purposes
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @package StinWeatherApp\Controller

@@ -52,4 +52,12 @@ final class TestController extends AbstractController {
 	public function status500(): Response {
 		return new Response("Status 500", 500);
 	}
+
+	public function testMethod(): Response {
+		return new Response("Status 500", 500);
+	}
+
+	public function noResponseObjectReturn(): string {
+		return "This method should return Response object";
+	}
 }

@@ -41,15 +41,51 @@ class Router {
 	 * @param Method $httpMethod The HTTP method that the route will respond to.
 	 */
 	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET): void {
-		if (!$this->isMethodSupported($httpMethod)) {
-			throw new \InvalidArgumentException("Unsupported HTTP method: $httpMethod->value");
-		}
 		$this->routes[] = new Route($path, $controller, $controllerMethod, $httpMethod);
 	}
 
+	/**
+	 * Returns the route that matches the given path.
+	 *
+	 * @param string $path The path to match.
+	 * @return Route|null The matching route, or null if no route matches the path.
+	 */
+	public function getRouteByPath(string $path): ?Route {
+		foreach ($this->routes as $route) {
+			if ($route->getPath() === $path) {
+				return $route;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns array of all routes
+	 * @return array<Route>
+	 */
+	public function getRoutes(): array {
+		return $this->routes;
+	}
+
+	/**
+	 * Sets the route that will be called when no other route matches the request.
+	 *
+	 * @param string $path The path that the route will handle.
+	 * @param string $controller The controller that will handle the route.
+	 * @param string $controllerMethod The method of the controller that will be called.
+	 */
 	public function setNotFound(string $path, string $controller, string $controllerMethod = "index"): void {
 		$this->notFoundRoute = new Route($path, $controller, $controllerMethod, Method::GET);
 		$this->routes[] = $this->notFoundRoute;
+	}
+
+	/**
+	 * Returns the route that will be called when no other route matches the request.
+	 *
+	 * @return Route The not found route.
+	 */
+	public function getNotFoundRoute(): Route {
+		return $this->notFoundRoute;
 	}
 
 	/**
@@ -94,7 +130,6 @@ class Router {
 			$response->send();
 
 			return $response;
-
 		}
 	}
 	/**
@@ -103,7 +138,6 @@ class Router {
 	 * @param string $path The path or URL to redirect to.
 	 * @param int $statusCode (optional) HTTP status code for the redirection, defaults to 302.
 	 */
-	#[NoReturn]
 	public static function redirect(string $path, int $statusCode = 302): Response {
 		header("Location: $path", true, $statusCode);
 		return new Response(statusCode: $statusCode);
@@ -113,9 +147,10 @@ class Router {
 	 * Checks if the given HTTP method is supported.
 	 *
 	 * @param Method $method The HTTP method to check.
+	 *
 	 * @return bool True if the method is supported, false otherwise.
 	 */
-	private function isMethodSupported(Method $method): bool {
+	public function isMethodSupported(Method $method): bool {
 		return in_array($method, Method::cases());
 	}
 

@@ -14,7 +14,7 @@ class Response {
 	 * Constructor of response
 	 * @param string $content
 	 * @param int    $statusCode
-	 * @param array  $headers
+	 * @param array<string>  $headers
 	 */
 	public function __construct(string $content = "", int $statusCode = 200, array $headers = array()) {
 		$this->setContent($content);

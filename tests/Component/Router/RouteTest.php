@@ -33,4 +33,11 @@ class RouteTest extends TestCase {
 		$this->route->setHttpMethod(Method::POST);
 		$this->assertEquals('POST', $this->route->getHttpMethod()->value);
 	}
+
+	public function testConstructorThrowsExceptionForNonexistentController(): void {
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Controller class does not exist: NonexistentController');
+
+		new Route('/test', 'NonexistentController', 'testMethod', Method::GET);
+	}
 }

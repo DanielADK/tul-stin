@@ -100,4 +100,30 @@ class RouterTest extends TestCase {
 		$method = Method::GET;
 		$this->assertTrue($this->router->isMethodSupported($method));
 	}
+
+	public function testSearchRoutesSpeed(): void {
+		$numOfRoutes = 50_000;
+		// Create $numOfRoutes routes with unique paths and add them to the router
+		for ($i = 0; $i < $numOfRoutes; $i++) {
+			$this->router->addRoute("/test$i", TestController::class, 'testMethod', Method::GET);
+		}
+		echo "$numOfRoutes routes added\n";
+
+		// Create an array with all paths in random order
+		$paths = range(0, $numOfRoutes-1);
+		shuffle($paths);
+		$paths = array_map(fn($i) => "/test$i", $paths);
+
+		// Measure the time to search for all routes
+		$start = microtime(true);
+		foreach ($paths as $path) {
+			$route = $this->router->getRouteByPath($path);
+			$this->assertNotNull($route);
+		}
+		$end = microtime(true);
+
+		// Print the time to search for all routes
+		$time = $end - $start;
+		echo "Time to search for $numOfRoutes routes: $time seconds\n";
+	}
 }

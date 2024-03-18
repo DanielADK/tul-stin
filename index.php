@@ -25,6 +25,5 @@ try {
 // Routes
 $router->addRoute("/", HomeController::class);
 $router->setNotFound("/not-found", NotFoundController::class);
-$router->addRoute("/test", HomeController::class, "AAA");
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

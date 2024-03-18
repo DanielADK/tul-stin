@@ -23,6 +23,7 @@ class SQLiteConnectionBuilder extends Db implements ConnectionBuilder {
 	 * @return void
 	 * @throws PDOException
 	 */
+	#[\Override]
 	public function buildConnection(): void {
 		self::$connection = new PDO(
 			"sqlite:".$this->database,

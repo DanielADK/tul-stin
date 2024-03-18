@@ -60,4 +60,8 @@ final class TestController extends AbstractController {
 	public function noResponseObjectReturn(): string {
 		return "This method should return Response object";
 	}
+
+	public function methodSetsHeaders(): Response {
+		return new Response("", 200, array("Content-Type: application/json", "Authorization: Bearer token"));
+	}
 }

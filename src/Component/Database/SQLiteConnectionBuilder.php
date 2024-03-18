@@ -17,15 +17,17 @@ class SQLiteConnectionBuilder extends Db implements ConnectionBuilder {
 		return $this->database;
 	}
 
+	/**
+	 * Build the connection to SQLite database
+	 *
+	 * @return void
+	 * @throws PDOException
+	 */
 	public function buildConnection(): void {
-		try {
-			self::$connection = @new PDO(
-				"sqlite:".$this->database.".sqlite",
-				null,
-				null,
-				self::$settings);
-		} catch (PDOException $e) {
-			echo "Connection failed: " . $e->getMessage();
-		}
+		self::$connection = new PDO(
+			"sqlite:".$this->database,
+			null,
+			null,
+			self::$settings);
 	}
 }

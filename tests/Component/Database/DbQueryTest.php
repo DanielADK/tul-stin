@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Database\Db;
 use PDO;
 use StinWeatherApp\Component\Database\InMemorySQLiteConnectionBuilder;
+use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
 
 #[CoversClass(Db::class)]
 class DbQueryTest extends TestCase {
@@ -15,7 +16,8 @@ class DbQueryTest extends TestCase {
 
 	public static function setUpBeforeClass(): void  {
 		// Create new PDO instance
-		$cb = new InMemorySQLiteConnectionBuilder();
+		$cb = new SQLiteConnectionBuilder();
+		$cb->setDatabase(":memory:");
 		$cb->buildConnection();
 
 		// Connect Db class to the PDO instance

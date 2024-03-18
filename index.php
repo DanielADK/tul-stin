@@ -9,14 +9,20 @@ use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\HomeController;
 use StinWeatherApp\Controller\NotFoundController;
 
+// Init router
+$router = new Router();
 
 // Connect
-$conn = new SQLiteConnectionBuilder();
-$conn->setDatabase('db/weather');
-$conn->buildConnection();
-Db::connect($conn);
+try {
+	$conn = new SQLiteConnectionBuilder();
+	$conn->setDatabase('db/weather.sqlite3');
+	$conn->buildConnection();
+	Db::connect($conn);
+} catch (PDOException $e) {
+	echo "Database connection failed: " . $e->getMessage();
+}
 
-$router = new Router();
+// Routes
 $router->addRoute("/", HomeController::class);
 $router->setNotFound("/not-found", NotFoundController::class);
 $router->addRoute("/test", HomeController::class, "AAA");

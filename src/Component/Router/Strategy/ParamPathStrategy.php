@@ -5,13 +5,13 @@ namespace StinWeatherApp\Component\Router\Strategy;
 use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 
 /**
- * Class RegexPathStrategy
+ * Class ParamPathStrategy
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @description Strategy for regex path matching
  * @package StinWeatherApp\Component\Router\Strategy
  */
-class RegexPathStrategy implements PathStrategyInterface {
+class ParamPathStrategy implements PathStrategyInterface {
 
 	/**
 	 * @inheritdoc
@@ -20,6 +20,7 @@ class RegexPathStrategy implements PathStrategyInterface {
 	 */
 	#[\Override]
 	public function matches(string $path, string $requestPath): bool {
-		return preg_match("~^{$path}$~", $requestPath) === 1;
+		$pathAsRegex = "@^" . preg_replace('/:\w+/', '(\w+)', $path) . "$@D";
+		return preg_match($pathAsRegex, $requestPath) === 1;
 	}
 }

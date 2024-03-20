@@ -3,6 +3,8 @@
 namespace StinWeatherApp\Component\Router;
 
 use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
+use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 
 /**
  * Class Route
@@ -33,14 +35,20 @@ final class Route {
 	private Method $httpMethod;
 
 	/**
+	 * @var PathStrategyInterface $strategy The strategy for matching the path
+	 */
+	private PathStrategyInterface $strategy;
+
+	/**
 	 * Route constructor.
 	 *
-	 * @param string $path The path of the route
-	 * @param string $controller The controller that handles the route
-	 * @param string $controllerMethod The method in the controller that handles the route
-	 * @param Method $httpMethod The HTTP method of the route (GET, POST, etc.)
+	 * @param string                     $path The path of the route
+	 * @param string                     $controller The controller that handles the route
+	 * @param string                     $controllerMethod The method in the controller that handles the route
+	 * @param Method                     $httpMethod The HTTP method of the route (GET, POST, etc.)
+	 * @param PathStrategyInterface|null $pathStrategy The strategy for matching the path
 	 */
-	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod) {
+	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod = Method::GET, PathStrategyInterface $pathStrategy = null) {
 		if (!class_exists($controller)) {
 			throw new \InvalidArgumentException("Controller class does not exist: $controller");
 		}
@@ -49,6 +57,7 @@ final class Route {
 		$this->controller = $controller;
 		$this->controllerMethod = $controllerMethod;
 		$this->httpMethod = $httpMethod;
+		$this->strategy = $pathStrategy ?? new DirectPathStrategy($this->path);
 	}
 
 	/**
@@ -129,6 +138,16 @@ final class Route {
 	 */
 	public function getHttpMethod(): Method {
 		return $this->httpMethod;
+	}
+
+	/**
+	 * Is path matching the route with the strategy
+	 *
+	 * @param string $requestPath
+	 * @return bool
+	 */
+	public function matches(string $requestPath): bool {
+		return $this->strategy->matches($this->path, $requestPath);
 	}
 
 }

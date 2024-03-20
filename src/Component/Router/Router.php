@@ -6,6 +6,9 @@ use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use StinWeatherApp\Component\Http\Response;
 use StinWeatherApp\Component\Router\Route;
+use StinWeatherApp\Component\Router\Strategy\ArrayPathStrategy;
+use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
+use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Component\Http\Method;
 
@@ -42,9 +45,13 @@ class Router {
 	 * @param string $controller The controller that will handle the route.
 	 * @param string $controllerMethod The method of the controller that will be called.
 	 * @param Method $httpMethod The HTTP method that the route will respond to.
+	 * @param PathStrategyInterface|null $strategy The strategy that the route will use to match the path.
+	 * @return Router
 	 */
-	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET): void {
-		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod);
+	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = null): Router {
+		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
+
+		return $this;
 	}
 
 	/**
@@ -54,7 +61,17 @@ class Router {
 	 * @return Route|null The matching route, or null if no route matches the path.
 	 */
 	public function getRouteByPath(string $path): ?Route {
-		return $this->routes[$path] ?? null;
+		// Optimization: O(1) search for the route that matches the exact path.
+		if (isset($this->routes[$path]) && $this->routes[$path] instanceof Route) {
+			return $this->routes[$path];
+		}
+		// Generic search
+		foreach ($this->routes as $route) {
+			if ($route->matches($path)) {
+				return $route;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -68,12 +85,10 @@ class Router {
 	/**
 	 * Sets the route that will be called when no other route matches the request.
 	 *
-	 * @param string $path The path that the route will handle.
-	 * @param string $controller The controller that will handle the route.
-	 * @param string $controllerMethod The method of the controller that will be called.
+	 * @param Route $route The not found route.
 	 */
-	public function setNotFound(string $path, string $controller, string $controllerMethod = "index"): void {
-		$this->notFoundRoute = new Route($path, $controller, $controllerMethod, Method::GET);
+	public function setNotFound(Route $route): void {
+		$this->notFoundRoute = $route;
 		$this->routes[$this->notFoundRoute->getPath()] = $this->notFoundRoute;
 	}
 

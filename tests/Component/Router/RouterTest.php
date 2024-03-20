@@ -33,7 +33,7 @@ class RouterTest extends TestCase {
 	}
 
 	public function testSetNotFound(): void {
-		$this->router->setNotFound('/not-found', NotFoundController::class, 'index');
+		$this->router->setNotFound(new Route('/not-found', NotFoundController::class, 'index'));
 
 		$this->assertEquals('/not-found', $this->router->getNotFoundRoute()->getPath());
 		$this->assertEquals(NotFoundController::class, $this->router->getNotFoundRoute()->getController());

@@ -14,29 +14,19 @@ use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
  * @package StinWeatherApp\Component\Router
  */
 final class Route {
-	/**
-	 * @var string $path The path of the route
-	 */
+	/** @var string $path The path of the route */
 	private string $path;
 
-	/**
-	 * @var string $controller The controller that handles the route
-	 */
+	/** @var string $controller The controller that handles the route */
 	private string $controller;
 
-	/**
-	 * @var string $controllerMethod The method in the controller that handles the route
-	 */
+	/** @var string $controllerMethod The method in the controller that handles the route */
 	private string $controllerMethod;
 
-	/**
-	 * @var Method $httpMethod The HTTP method of the route (GET, POST, etc.)
-	 */
+	/** @var Method $httpMethod The HTTP method of the route (GET, POST, etc.) */
 	private Method $httpMethod;
 
-	/**
-	 * @var PathStrategyInterface $strategy The strategy for matching the path
-	 */
+	/** @var PathStrategyInterface $strategy The strategy for matching the path*/
 	private PathStrategyInterface $strategy;
 
 	/**
@@ -57,7 +47,7 @@ final class Route {
 		$this->controller = $controller;
 		$this->controllerMethod = $controllerMethod;
 		$this->httpMethod = $httpMethod;
-		$this->strategy = $pathStrategy ?? new DirectPathStrategy($this->path);
+		$this->strategy = $pathStrategy ?? new DirectPathStrategy();
 	}
 
 	/**

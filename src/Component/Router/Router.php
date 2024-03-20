@@ -21,13 +21,9 @@ use StinWeatherApp\Component\Http\Method;
  */
 class Router {
 
-	/**
-	 * @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object.
-	 */
+	/** @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object. */
 	private array $routes = array();
-	/**
-	 * @var Route $notFoundRoute The route that will be called when no other route matches the request.
-	 */
+	/** * @var Route $notFoundRoute The route that will be called when no other route matches the request. */
 	private Route $notFoundRoute;
 
 	/**

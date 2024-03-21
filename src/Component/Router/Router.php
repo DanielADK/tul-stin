@@ -4,11 +4,13 @@ namespace StinWeatherApp\Component\Router;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
 use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Strategy\ArrayPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
+use StinWeatherApp\Component\Router\Strategy\PathValueExtractor;
 use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Component\Http\Method;
 
@@ -105,16 +107,22 @@ class Router {
 	 */
 	public function dispatch(string $requestUri, Method $requestMethod): Response {
 		try {
+			// Create a new request object
+			$request = new Request();
+
 			// Find by index
 			$route = $this->getRouteByPath($requestUri);
 			if ($route instanceof Route) {
 				// If the route matches the request, call the controller method and return the response.
-				if ($route->getPath() === $requestUri && $route->getHttpMethod() === $requestMethod) {
-					$controller = new ($route->getController());
+				if ($route->matches($requestUri) && $route->getHttpMethod() === $requestMethod) {
+					$controller = new ($route->getController())($request);
 					if (!method_exists($controller, $route->getControllerMethod())) {
 						throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");
 					}
-					$response = $controller->{$route->getControllerMethod()}();
+					$params = PathValueExtractor::extractValue($route->getPath(), $request);
+					/** @var callable $callable */
+					$callable = [$controller, $route->getControllerMethod()];
+					$response = call_user_func_array($callable, $params);
 
 					// If the controller action returns a Response object, send it to the client.
 					if ($response instanceof Response) {

@@ -1,6 +1,11 @@
 name: Run PHPUnit Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - dev
+      - tests
+      - features/**
 
 jobs:
   test:

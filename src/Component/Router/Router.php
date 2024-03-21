@@ -3,16 +3,14 @@
 namespace StinWeatherApp\Component\Router;
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
+use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
-use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Strategy\ArrayPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 use StinWeatherApp\Component\Router\Strategy\PathValueExtractor;
 use StinWeatherApp\Controller\NotFoundController;
-use StinWeatherApp\Component\Http\Method;
 
 /**
  * Class Router
@@ -43,10 +41,11 @@ class Router {
 	 * @param string $controller The controller that will handle the route.
 	 * @param string $controllerMethod The method of the controller that will be called.
 	 * @param Method $httpMethod The HTTP method that the route will respond to.
-	 * @param PathStrategyInterface|null $strategy The strategy that the route will use to match the path.
+	 * @param PathStrategyInterface $strategy The strategy that the route will use to match the path.
+	 *
 	 * @return Router
 	 */
-	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = null): Router {
+	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = new DirectPathStrategy()): Router {
 		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
 
 		return $this;

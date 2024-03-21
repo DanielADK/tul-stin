@@ -2,6 +2,13 @@
 
 namespace StinWeatherApp\Component\Http;
 
+/**
+ * Class Request
+ *
+ * @author Daniel Adámek <daniel.adamek@tul.cz>
+ * @description Represents the HTTP request
+ * @package StinWeatherApp\Component\Router
+ */
 class Request {
 	private string $method;
 	private string $path;
@@ -9,7 +16,6 @@ class Request {
 	private array $headers;
 	/** @var array<string, string> $body */
 	private array $body;
-
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$parsedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -21,7 +27,7 @@ class Request {
 			if($name != 'HTTP_MOD_REWRITE' && (str_starts_with($name, 'HTTP_') || $name == 'CONTENT_LENGTH' || $name == 'CONTENT_TYPE')) {
 				$name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', str_replace('HTTP_', '', $name)))));
 				if($name == 'Content-Type') $name = 'Content-type';
-				$headers[$name] = $value;
+				$this->headers[$name] = $value;
 			}
 		}
 	}

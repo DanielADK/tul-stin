@@ -16,11 +16,19 @@ class Request {
 	private array $headers;
 	/** @var array<string, string> $body */
 	private array $body;
+	/** @var array<string, string> */
+	private array $post;
+	/** @var array<string, string> */
+	private array $get;
+
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$parsedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 		$this->path = is_string($parsedPath) ? $parsedPath : '';
 		$this->body = $this->method === 'POST' ? $_POST : $_GET;
+		$this->post = $_POST;
+		$this->get = $_GET;
+
 		// Parse headers
 		$this->headers = array();
 		foreach($_SERVER as $name => $value) {
@@ -59,5 +67,27 @@ class Request {
 	 */
 	public function getBody(): array {
 		return $this->body;
+	}
+
+	/**
+	 * @description Returns the value of the POST parameter with the given name, or null if the parameter is not set.
+	 *
+	 * @param string $index
+	 *
+	 * @return array<string, string>|null
+	 */
+	public function getPost(string $index): ?string {
+		return $this->post[$index] ?? null;
+	}
+
+	/**
+	 * @description Returns the value of the GET parameter with the given name, or null if the parameter is not set.
+	 *
+	 * @param string $index
+	 *
+	 * @return array<string, string>|null
+	 */
+	public function getGet(string $index): ?string {
+		return $this->get[$index] ?? null;
 	}
 }

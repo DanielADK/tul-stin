@@ -50,6 +50,7 @@ class ResponseTest extends TestCase {
 	}
 
 	public function testDispatchSetsHeaders(): void {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
 		// Add a test route that sets headers and returns a Response
 		$router = new Router();
 		$router->addRoute('/test', TestController::class, 'methodSetsHeaders', Method::GET);

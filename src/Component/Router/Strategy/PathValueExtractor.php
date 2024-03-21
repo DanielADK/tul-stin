@@ -12,7 +12,7 @@ class PathValueExtractor {
 	 * @param Request $request The request
 	 * @return array<string, string> The values of the variables
 	 */
-	public function extractValue(string $patternPath, Request $request): array {
+	public static function extractValue(string $patternPath, Request $request): array {
 		$realPath = $request->getPath();
 		$patternParts = explode('/', $patternPath);
 		$realPathParts = explode('/', $realPath);

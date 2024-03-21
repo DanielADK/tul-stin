@@ -4,7 +4,7 @@ namespace StinWeatherApp\Services\Payment;
 
 use StinWeatherApp\Model\Payment;
 
-class CardPaymentServiceInterface implements PaymentServiceInterface {
+class CardPaymentService implements PaymentServiceInterface {
 	private PaymentServiceProcess $paymentServiceProcess;
 
 	public function __construct(PaymentServiceProcess $paymentServiceProcess) {

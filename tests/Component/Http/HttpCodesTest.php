@@ -11,6 +11,8 @@ class HttpCodesTest extends TestCase {
 	private Router $router;
 
 	protected function setUp(): void {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
 		$this->router = new Router();
 		$this->router->addRoute('/test-200', TestController::class, 'status200', Method::GET);
 		$this->router->addRoute('/test-201', TestController::class, 'status201', Method::GET);

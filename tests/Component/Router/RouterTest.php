@@ -2,9 +2,7 @@
 
 namespace Component\Router;
 
-use JetBrains\PhpStorm\NoReturn;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Response;
@@ -18,6 +16,8 @@ class RouterTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->router = new Router();
+		$_SERVER['REQUEST_URI'] = '/';
+		$_SERVER['REQUEST_METHOD'] = 'GET';
 	}
 
 	public function testAddRoute(): void {
@@ -33,7 +33,7 @@ class RouterTest extends TestCase {
 	}
 
 	public function testSetNotFound(): void {
-		$this->router->setNotFound('/not-found', NotFoundController::class, 'index');
+		$this->router->setNotFound(new Route('/not-found', NotFoundController::class, 'index'));
 
 		$this->assertEquals('/not-found', $this->router->getNotFoundRoute()->getPath());
 		$this->assertEquals(NotFoundController::class, $this->router->getNotFoundRoute()->getController());
@@ -69,6 +69,7 @@ class RouterTest extends TestCase {
 
 	#[Depends('testAddRoute')]
 	public function testDispatch(): void {
+		ob_start();
 		$response = $this->router->dispatch('/test', Method::GET);
 
 		$this->assertInstanceOf(Response::class, $response);
@@ -77,6 +78,7 @@ class RouterTest extends TestCase {
 
 		$response = $this->router->dispatch('/invalidcontrollermethod', Method::GET);
 		$this->assertEquals(500, $response->getStatusCode());
+		ob_end_clean();
 	}
 
 	public function testDispatchControllerActionDoesNotReturnResponse(): void {

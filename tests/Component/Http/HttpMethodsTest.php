@@ -20,6 +20,7 @@ class HttpMethodsTest extends TestCase {
  }
 
  public function testGet(): void {
+	 $_SERVER['REQUEST_METHOD'] = 'GET';
   $initialLevel = ob_get_level();
   ob_start();
   $this->router->dispatch('/test-get', Method::from("GET"));
@@ -31,6 +32,7 @@ class HttpMethodsTest extends TestCase {
  }
 
  public function testPost(): void {
+	 $_SERVER['REQUEST_METHOD'] = 'POST';
   $initialLevel = ob_get_level();
   ob_start();
   $this->router->dispatch('/test-post', Method::from("POST"));
@@ -42,6 +44,7 @@ class HttpMethodsTest extends TestCase {
  }
 
  public function testPut(): void {
+	 $_SERVER['REQUEST_METHOD'] = 'PUT';
   $initialLevel = ob_get_level();
   ob_start();
   $this->router->dispatch('/test-put', Method::from("PUT"));
@@ -53,6 +56,7 @@ class HttpMethodsTest extends TestCase {
  }
 
  public function testDelete(): void {
+	 $_SERVER['REQUEST_METHOD'] = 'DELETE';
   $initialLevel = ob_get_level();
   ob_start();
   $this->router->dispatch('/test-delete', Method::from("DELETE"));
@@ -64,6 +68,7 @@ class HttpMethodsTest extends TestCase {
  }
 
  public function testOptions(): void {
+	 $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
   $initialLevel = ob_get_level();
   ob_start();
   $this->router->dispatch('/test-options', Method::from("OPTIONS"));

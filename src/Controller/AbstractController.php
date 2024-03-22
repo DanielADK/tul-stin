@@ -4,6 +4,7 @@ namespace StinWeatherApp\Controller;
 
 
 use Exception;
+use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
 
 /**
@@ -13,6 +14,13 @@ use StinWeatherApp\Component\Http\Response;
  * @package StinWeatherApp\Controller
  */
 abstract class AbstractController {
+
+	protected Request $request;
+
+	public function __construct(Request $request) {
+		$this->request = $request;
+	}
+
 	/**
 	 * Render page with by set data into view
 	 * @param string               $viewName

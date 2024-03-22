@@ -3,11 +3,14 @@
 namespace StinWeatherApp\Component\Router;
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
-use StinWeatherApp\Component\Http\Response;
-use StinWeatherApp\Component\Router\Route;
-use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Http\Request;
+use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Strategy\ArrayPathStrategy;
+use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
+use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
+use StinWeatherApp\Component\Router\Strategy\PathValueExtractor;
+use StinWeatherApp\Controller\NotFoundController;
 
 /**
  * Class Router
@@ -18,13 +21,9 @@ use StinWeatherApp\Component\Http\Method;
  */
 class Router {
 
-	/**
-	 * @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object.
-	 */
+	/** @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object. */
 	private array $routes = array();
-	/**
-	 * @var Route $notFoundRoute The route that will be called when no other route matches the request.
-	 */
+	/** * @var Route $notFoundRoute The route that will be called when no other route matches the request. */
 	private Route $notFoundRoute;
 
 	/**
@@ -42,9 +41,14 @@ class Router {
 	 * @param string $controller The controller that will handle the route.
 	 * @param string $controllerMethod The method of the controller that will be called.
 	 * @param Method $httpMethod The HTTP method that the route will respond to.
+	 * @param PathStrategyInterface $strategy The strategy that the route will use to match the path.
+	 *
+	 * @return Router
 	 */
-	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET): void {
-		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod);
+	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = new DirectPathStrategy()): Router {
+		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
+
+		return $this;
 	}
 
 	/**
@@ -54,7 +58,17 @@ class Router {
 	 * @return Route|null The matching route, or null if no route matches the path.
 	 */
 	public function getRouteByPath(string $path): ?Route {
-		return $this->routes[$path] ?? null;
+		// Optimization: O(1) search for the route that matches the exact path.
+		if (isset($this->routes[$path]) && $this->routes[$path] instanceof Route) {
+			return $this->routes[$path];
+		}
+		// Generic search
+		foreach ($this->routes as $route) {
+			if ($route->matches($path)) {
+				return $route;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -68,12 +82,10 @@ class Router {
 	/**
 	 * Sets the route that will be called when no other route matches the request.
 	 *
-	 * @param string $path The path that the route will handle.
-	 * @param string $controller The controller that will handle the route.
-	 * @param string $controllerMethod The method of the controller that will be called.
+	 * @param Route $route The not found route.
 	 */
-	public function setNotFound(string $path, string $controller, string $controllerMethod = "index"): void {
-		$this->notFoundRoute = new Route($path, $controller, $controllerMethod, Method::GET);
+	public function setNotFound(Route $route): void {
+		$this->notFoundRoute = $route;
 		$this->routes[$this->notFoundRoute->getPath()] = $this->notFoundRoute;
 	}
 
@@ -94,16 +106,22 @@ class Router {
 	 */
 	public function dispatch(string $requestUri, Method $requestMethod): Response {
 		try {
+			// Create a new request object
+			$request = new Request();
+
 			// Find by index
 			$route = $this->getRouteByPath($requestUri);
 			if ($route instanceof Route) {
 				// If the route matches the request, call the controller method and return the response.
-				if ($route->getPath() === $requestUri && $route->getHttpMethod() === $requestMethod) {
-					$controller = new ($route->getController());
+				if ($route->matches($requestUri) && $route->getHttpMethod() === $requestMethod) {
+					$controller = new ($route->getController())($request);
 					if (!method_exists($controller, $route->getControllerMethod())) {
 						throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");
 					}
-					$response = $controller->{$route->getControllerMethod()}();
+					$params = PathValueExtractor::extractValue($route->getPath(), $request);
+					/** @var callable $callable */
+					$callable = [$controller, $route->getControllerMethod()];
+					$response = call_user_func_array($callable, $params);
 
 					// If the controller action returns a Response object, send it to the client.
 					if ($response instanceof Response) {

@@ -3,10 +3,9 @@
 namespace StinWeatherApp\Controller;
 
 use StinWeatherApp\Component\Http\Response;
-use StinWeatherApp\Controller\AbstractController;
 
 /**
- * Class TestController
+ * Class TestController - only for testing purposes
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @package StinWeatherApp\Controller
@@ -59,5 +58,17 @@ final class TestController extends AbstractController {
 
 	public function noResponseObjectReturn(): string {
 		return "This method should return Response object";
+	}
+
+	public function methodSetsHeaders(): Response {
+		return new Response("", 200, array("Content-Type: application/json", "Authorization: Bearer token"));
+	}
+
+	public function weather(string $city): Response {
+		return new Response($city, 200);
+	}
+
+	public function weatherday(string $city, string $day): Response {
+		return new Response($city . $day, 200);
 	}
 }

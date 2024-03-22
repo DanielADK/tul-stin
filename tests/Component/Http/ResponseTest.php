@@ -3,7 +3,10 @@
 namespace Component\Http;
 
 use PHPUnit\Framework\TestCase;
+use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Router;
+use StinWeatherApp\Controller\TestController;
 
 class ResponseTest extends TestCase {
 	private Response $response;
@@ -36,16 +39,27 @@ class ResponseTest extends TestCase {
 		$this->response->setJSON();
 		$this->assertContains('Content-Type: application/json', $this->response->getHeader());
 	}
+
 	public function testSetAndGetMultipleHeaders(): void {
-		// Set multiple headers
-		$this->response->setHeader('Content-Type: application/json');
-		$this->response->setHeader('Authorization: Bearer token');
+		$headers = array('Content-Type: application/json', 'Authorization: Bearer token');
 
-		// Get the headers
-		$headers = $this->response->getHeader();
+		$response = new Response('', 200, $headers);
 
-		// Assert that the headers contain the correct values
-		$this->assertContains('Content-Type: application/json', $headers);
-		$this->assertContains('Authorization: Bearer token', $headers);
+		$this->assertContains('Content-Type: application/json', $response->getHeader());
+		$this->assertContains('Authorization: Bearer token', $response->getHeader());
+	}
+
+	public function testDispatchSetsHeaders(): void {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		// Add a test route that sets headers and returns a Response
+		$router = new Router();
+		$router->addRoute('/test', TestController::class, 'methodSetsHeaders', Method::GET);
+
+		// Call dispatch with a request URI and method that match the test route
+		$response = $router->dispatch('/test', Method::GET);
+
+		// Check that the response has the expected headers
+		$this->assertContains('Content-Type: application/json', $response->getHeader());
+		$this->assertContains('Authorization: Bearer token', $response->getHeader());
 	}
 }

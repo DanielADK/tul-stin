@@ -4,10 +4,12 @@ require_once 'vendor/autoload.php';
 
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
- use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\HomeController;
 use StinWeatherApp\Controller\NotFoundController;
+use StinWeatherApp\Controller\PaymentController;
 
 // Init router
 $router = new Router();
@@ -15,7 +17,7 @@ $router = new Router();
 // Connect
 try {
 	$conn = new SQLiteConnectionBuilder();
-	$conn->setDatabase('db/weather.sqlite3');
+	$conn->setDatabase('db/weather.sqlite');
 	$conn->buildConnection();
 	Db::connect($conn);
 } catch (PDOException $e) {
@@ -24,6 +26,7 @@ try {
 
 // Routes
 $router->addRoute("/", HomeController::class);
-$router->setNotFound("/not-found", NotFoundController::class);
+$router->setNotFound(new Route("/not-found", NotFoundController::class, "index"));
+$router->addRoute("/pay", PaymentController::class, "paymentProcessing", Method::POST);
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

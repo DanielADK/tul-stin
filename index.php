@@ -28,5 +28,6 @@ try {
 $router->addRoute("/", HomeController::class);
 $router->setNotFound(new Route("/not-found", NotFoundController::class, "index"));
 $router->addRoute("/pay", PaymentController::class, "paymentProcessing", Method::POST);
+$router->addRoute("/time", TestController::class, "index");
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

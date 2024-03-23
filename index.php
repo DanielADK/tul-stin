@@ -10,7 +10,6 @@ use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\HomeController;
 use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Controller\PaymentController;
-use StinWeatherApp\Controller\TestController;
 
 // Init router
 $router = new Router();
@@ -29,6 +28,6 @@ try {
 $router->addRoute("/", HomeController::class);
 $router->setNotFound(new Route("/not-found", NotFoundController::class, "index"));
 $router->addRoute("/pay", PaymentController::class, "paymentProcessing", Method::POST);
-$router->addRoute("/time", TestController::class, "index");
+$router->addRoute("/time", HomeController::class, "time");
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

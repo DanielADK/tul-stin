@@ -10,6 +10,7 @@ use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\HomeController;
 use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Controller\PaymentController;
+use StinWeatherApp\Controller\TestController;
 
 // Init router
 $router = new Router();

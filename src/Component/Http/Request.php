@@ -23,7 +23,7 @@ class Request {
 
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
-		$parsedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+		$parsedPath = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
 		$this->path = is_string($parsedPath) ? $parsedPath : '';
 		$this->body = $this->method === 'POST' ? $_POST : $_GET;
 		$this->post = $_POST;

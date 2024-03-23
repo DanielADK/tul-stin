@@ -9,6 +9,7 @@ use StinWeatherApp\Controller\TestController;
 
 class HttpMethodsTest extends TestCase {
  private Router $router;
+	private int $initialLevel;
 
  protected function setUp(): void {
   $this->router = new Router();
@@ -17,6 +18,17 @@ class HttpMethodsTest extends TestCase {
   $this->router->addRoute('/test-put', TestController::class, 'put', Method::PUT);
   $this->router->addRoute('/test-delete', TestController::class, 'delete', Method::DELETE);
   $this->router->addRoute('/test-options', TestController::class, 'options', METHOD::OPTIONS);
+
+	 // Set initial output buffer level
+	 $this->initialLevel = ob_get_level();
+	 ob_start();
+ }
+
+	protected function tearDown(): void {
+		// Clean output buffer
+		while (ob_get_level() > $this->initialLevel) {
+			ob_end_clean();
+		}
  }
 
  public function testGet(): void {

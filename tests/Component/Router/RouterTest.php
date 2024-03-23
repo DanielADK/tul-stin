@@ -13,11 +13,23 @@ use StinWeatherApp\Controller\TestController;
 
 class RouterTest extends TestCase {
 	private Router $router;
+	private int $initialLevel;
 
 	protected function setUp(): void {
 		$this->router = new Router();
 		$_SERVER['REQUEST_URI'] = '/';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		// Set initial output buffer level
+		$this->initialLevel = ob_get_level();
+		ob_start();
+	}
+
+	protected function tearDown(): void {
+		// Clean output buffer
+		while (ob_get_level() > $this->initialLevel) {
+			ob_end_clean();
+		}
 	}
 
 	public function testAddRoute(): void {
@@ -69,7 +81,6 @@ class RouterTest extends TestCase {
 
 	#[Depends('testAddRoute')]
 	public function testDispatch(): void {
-		ob_start();
 		$response = $this->router->dispatch('/test', Method::GET);
 
 		$this->assertInstanceOf(Response::class, $response);
@@ -78,7 +89,6 @@ class RouterTest extends TestCase {
 
 		$response = $this->router->dispatch('/invalidcontrollermethod', Method::GET);
 		$this->assertEquals(500, $response->getStatusCode());
-		ob_end_clean();
 	}
 
 	public function testDispatchControllerActionDoesNotReturnResponse(): void {

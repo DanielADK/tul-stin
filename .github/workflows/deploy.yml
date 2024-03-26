@@ -1,27 +1,29 @@
-name: Laravel Deployment
-  on:
-    push:
-      branches:
-        - main
+name: AWS Deployment
+on:
+  push:
+    branches:
+      - main
+      
 jobs:
   deploy:
-  runs-on: ubuntu-latest
-  steps:
-   - name: Checkout repository
-     uses: actions/checkout@v2
-   - name: Set up PHP
-     uses: shivammathur/setup-php@v2
-     with:
-       php-version: '8.3'
-       extensions: ctype, dom, json, libxml, mbstring, pdo, phar, sqlite3, tokenizer, xml, xmlwriter
-       tools: composer, phpunit, phpstan
-   - name: Install dependencies
-     run: composer install --no-dev
-   - name: Set up AWS CLI
-     uses: aws-actions/configure-aws-credentials@v1
-     with:
-      aws-region: ${{ secrets.AWS_REGION }}
-      role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOY_ROLE }}
-      role-session-name: DeploymentSession
-   - name: Deploy to AWS EC2
-     run: ssh ${{ secrets.AWS_INSTANCE_IP }} "cd /var/www/stin && git pull && composer install --no-dev"
+    name: AWS Deployment
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout repository
+       uses: actions/checkout@v2
+     - name: Set up PHP
+       uses: shivammathur/setup-php@v2
+       with:
+         php-version: '8.3'
+         extensions: ctype, dom, json, libxml, mbstring, pdo, phar, sqlite3, tokenizer, xml, xmlwriter
+         tools: composer, phpunit, phpstan
+     - name: Install dependencies
+       run: composer install --no-dev
+     - name: Set up AWS CLI
+       uses: aws-actions/configure-aws-credentials@v1
+       with:
+        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOY_ROLE }}
+        role-session-name: DeploymentSession
+     - name: Deploy to AWS EC2
+       run: ssh ${{ secrets.AWS_INSTANCE_IP }} "cd /var/www/stin && git pull && composer install --no-dev"

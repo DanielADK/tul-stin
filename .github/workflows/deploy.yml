@@ -3,11 +3,19 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: AWS Deployment
+    name: Deployment
     runs-on: ubuntu-latest
+    
+    permissions:
+      deployments: write
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,8 +25,10 @@ jobs:
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} > ~/.ssh/known_hosts
+          
       - name: Connect, Checkout, Pull
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && git checkout main && git pull && exit"
+          
       - name: Clean keys
         run: rm -rf ~/.ssh

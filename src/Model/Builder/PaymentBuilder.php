@@ -3,6 +3,7 @@
 namespace StinWeatherApp\Model\Builder;
 
 use DateTime;
+use InvalidArgumentException;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
@@ -29,6 +30,9 @@ class PaymentBuilder {
 	 * @return self
 	 */
 	public function setAmount(float $amount): self {
+		if ($amount < 0) {
+			throw new InvalidArgumentException('Invalid amount');
+		}
 		$this->amount = $amount;
 		return $this;
 	}

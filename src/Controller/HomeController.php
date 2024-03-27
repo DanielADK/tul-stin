@@ -2,6 +2,7 @@
 
 namespace StinWeatherApp\Controller;
 
+use DateTime;
 use Exception;
 use StinWeatherApp\Component\Http\Response;
 
@@ -18,6 +19,14 @@ final class HomeController extends AbstractController {
 	 * @throws Exception
 	 */
 	public function index(): Response {
-		return $this->render("index");
+		return $this->render("index", ["helloworld" => "Zdravím světe!!"]);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function time(): Response {
+		$date = new DateTime();
+		return $this->render("time", ["date" => $date]);
 	}
 }

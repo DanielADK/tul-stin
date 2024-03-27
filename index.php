@@ -1,6 +1,6 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
@@ -28,5 +28,6 @@ try {
 $router->addRoute("/", HomeController::class);
 $router->setNotFound(new Route("/not-found", NotFoundController::class, "index"));
 $router->addRoute("/pay", PaymentController::class, "paymentProcessing", Method::POST);
+$router->addRoute("/time", HomeController::class, "time");
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

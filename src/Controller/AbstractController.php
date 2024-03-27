@@ -2,10 +2,14 @@
 
 namespace StinWeatherApp\Controller;
 
-
 use Exception;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Loader\FilesystemLoader;
 
 /**
  * Class AbstractController
@@ -16,8 +20,15 @@ use StinWeatherApp\Component\Http\Response;
 abstract class AbstractController {
 
 	protected Request $request;
+	protected Environment $twig;
 
 	public function __construct(Request $request) {
+		// Twig init
+		$loader = new FilesystemLoader(__DIR__ . "/../View");
+		$this->twig = new Environment($loader, [
+			'cache' => __DIR__ . "/../../var/cache",
+		]);
+
 		$this->request = $request;
 	}
 
@@ -30,22 +41,17 @@ abstract class AbstractController {
 	 * @throws Exception
 	 */
 	protected function render(string $viewName, array $data = array()): Response {
-		$viewPath = __DIR__ . "/../View/{$viewName}.phtml";
-		if (file_exists($viewPath)) {
-			extract($data);
-			ob_start();
-			include($viewPath);
-			$content = ob_get_clean();
-			if (is_string($content)) {
-				return (new Response($content, 200))->setHTML();
-			}
-
-			throw new Exception("Cant render content of view: {$viewName}");
-
-		} else {
-			throw new Exception("View {$viewName} not found.");
+		try {
+			$content = $this->twig->render("{$viewName}.twig", $data);
+			return (new Response($content, 200))->setHTML();
+		} catch (LoaderError $e) {
+			throw new Exception("Template {$viewName} not found", 500);
+		} catch (RuntimeError $e) {
+			throw new Exception("Template {$viewName} runtime error", 500);
+		} catch (SyntaxError $e) {
+			throw new Exception("Template {$viewName} syntax error", 500);
+		} catch (Exception $e) {
+			throw new Exception("Template {$viewName} rendering error", 500);
 		}
-
-
 	}
 }

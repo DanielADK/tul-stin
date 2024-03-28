@@ -9,7 +9,6 @@ use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
 use StinWeatherApp\Services\Payment\Parser\JsonPaymentParser;
-use ValueError;
 
 class JsonPaymentParserTest extends TestCase {
 
@@ -30,6 +29,7 @@ class JsonPaymentParserTest extends TestCase {
 			'datetime' => '2022-01-01 00:00:00',
 			'status' => 'completed'
 		]);
+		$this->assertTrue(is_string($data));
 
 		$payment = $this->parser->parse($data);
 
@@ -59,6 +59,7 @@ class JsonPaymentParserTest extends TestCase {
 			'currency' => 'EUR',
 			'type' => 'CASH'
 		]);
+		$this->assertTrue(is_string($data));
 
 		$payment = $this->parser->parse($data);
 
@@ -80,6 +81,7 @@ class JsonPaymentParserTest extends TestCase {
 			'currency' => 'EUR'
 			// 'type' key is missing
 		]);
+		$this->assertTrue(is_string($data));
 
 		$this->parser->parse($data);
 	}
@@ -88,13 +90,14 @@ class JsonPaymentParserTest extends TestCase {
 	 * @throws Exception
 	 */
 	public function testParseWithInvalidValues(): void {
-		$this->expectException(ValueError::class);
+		$this->expectException(InvalidArgumentException::class);
 
 		$data = json_encode([
 			'amount' => -100.0, // Invalid value: amount cannot be negative
 			'currency' => 'EUR',
 			'type' => 'CASH'
 		]);
+		$this->assertTrue(is_string($data));
 
 		$this->parser->parse($data);
 	}

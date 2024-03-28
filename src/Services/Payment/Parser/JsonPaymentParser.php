@@ -3,7 +3,6 @@
 namespace StinWeatherApp\Services\Payment\Parser;
 
 use DateTime;
-use Exception;
 use InvalidArgumentException;
 use StinWeatherApp\Model\Builder\PaymentBuilder;
 use StinWeatherApp\Model\Payment;
@@ -20,12 +19,7 @@ use StinWeatherApp\Model\Types\PaymentType;
 class JsonPaymentParser implements PaymentParserInterface {
 
 	/**
-	 * @description Parses the data and returns a Payment object
-	 *
-	 * @param string $data
-	 *
-	 * @return Payment
-	 * @throws Exception
+	 * @inheritdoc
 	 */
 	#[\Override]
 	public function parse(string $data): Payment {

@@ -2,6 +2,7 @@
 
 namespace StinWeatherApp\Services\Payment\Parser;
 
+use Exception;
 use StinWeatherApp\Model\Payment;
 
 /**
@@ -23,6 +24,7 @@ interface PaymentParserInterface {
 	 * @param string $data
 	 *
 	 * @return Payment
+	 * @throws Exception
 	 */
 	public function parse(string $data): Payment;
 }

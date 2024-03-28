@@ -27,6 +27,7 @@ class JsonPaymentParser implements PaymentParserInterface {
 	 * @return Payment
 	 * @throws Exception
 	 */
+	#[\Override]
 	public function parse(string $data): Payment {
 		$paymentData = json_decode($data, true);
 

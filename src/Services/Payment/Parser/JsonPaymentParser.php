@@ -35,8 +35,7 @@ class JsonPaymentParser implements PaymentParserInterface {
 			throw new InvalidArgumentException('Invalid JSON provided');
 		}
 
-		$requiredKeys = ['amount', 'currency', 'type'];
-		foreach ($requiredKeys as $key) {
+		foreach (self::requiredKeys as $key) {
 			if (!array_key_exists($key, $paymentData)) {
 				throw new InvalidArgumentException("Missing required key: {$key}");
 			}

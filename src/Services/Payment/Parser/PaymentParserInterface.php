@@ -12,6 +12,11 @@ use StinWeatherApp\Model\Payment;
  * @package StinWeatherApp\Services\Payment\Parser
  */
 interface PaymentParserInterface {
+
+	/** @var string[] */
+	const array requiredKeys = ['amount', 'currency', 'type'];
+	const array allKeys = ['amount', 'currency', 'type', 'datetime', 'status'];
+
 	/**
 	 * @description Parses the data and returns a Payment object
 	 *

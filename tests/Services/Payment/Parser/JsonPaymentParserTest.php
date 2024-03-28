@@ -15,6 +15,10 @@ class JsonPaymentParserTest extends TestCase {
 
 	private JsonPaymentParser $parser;
 
+	protected function setUp(): void {
+		$this->parser = new JsonPaymentParser();
+	}
+
 	/**
 	 * @throws \Exception
 	 */
@@ -93,9 +97,5 @@ class JsonPaymentParserTest extends TestCase {
 		]);
 
 		$this->parser->parse($data);
-	}
-
-	protected function setUp(): void {
-		$this->parser = new JsonPaymentParser();
 	}
 }

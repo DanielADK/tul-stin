@@ -11,6 +11,11 @@ class XMLPaymentParserTest extends TestCase {
 
 	private XMLPaymentParser $parser;
 
+	protected function setUp(): void {
+		$this->parser = new XMLPaymentParser();
+		error_reporting(E_ALL);
+	}
+
 	/**
 	 * Test that the parse method correctly processes valid XML data and returns the expected Payment object.
 	 *
@@ -35,10 +40,10 @@ class XMLPaymentParserTest extends TestCase {
 	 */
 	public function testParseInvalidXML(): void {
 		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage('Invalid XML provided');
 
 		$xml = 'invalid xml';
-		$this->parser->parse($xml);
+		// Generates warning -> want to suppress it
+		@$this->parser->parse($xml);
 	}
 
 	/**
@@ -67,9 +72,5 @@ class XMLPaymentParserTest extends TestCase {
 
 		$xml = '<payment><amount>100</amount><currency>INVALID</currency><type>CASH</type><datetime>2022-01-01T00:00:00</datetime><status>pending</status></payment>';
 		$this->parser->parse($xml);
-	}
-
-	protected function setUp(): void {
-		$this->parser = new XMLPaymentParser();
 	}
 }

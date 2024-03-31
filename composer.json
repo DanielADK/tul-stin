@@ -19,6 +19,7 @@
     "require": {
         "ext-sqlite3": "*",
         "ext-pdo": "*",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+        "ext-simplexml": "*"
     }
 }

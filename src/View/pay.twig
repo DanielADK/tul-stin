@@ -1,54 +1,56 @@
 {% extends "template.twig" %}
 
 {% block content %}
-    <h1>Pay for premium access!</h1>
+    <div class="col-6">
+        <h1>Pay for premium access!</h1>
 
-    <form class="col-6 g-3" id="paymentForm" method="POST">
-        <div class="mb-3">
-            <label class="form-label" for="username">Username:</label>
-            <input class="form-control" type="text" id="username" name="username" required>
-        </div>
-        <div class="mb-3">
-            <label for="email">Email:</label>
-            <input class="form-control" type="email" id="email" name="email" required>
-        </div>
-        <div class="mb-3">
-            <label for="payment-type">Payment Type:</label>
-            <select class="form-select" id="payment-type" name="payment-type" required>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-            </select>
-        </div>
-        <div class="card mt-2 mb-3" id="card-payment" style="display: none">
-            <div class="card-header text-bg-primary">
-                Please fill in your card details:
+        <form class="g-3" id="paymentForm" method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="username">Username:</label>
+                <input class="form-control" type="text" id="username" name="username" required>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label for="cardNumber">Card number:</label>
-                    <input class="form-control" type="text" id="cardNumber" name="cardNumber">
+            <div class="mb-3">
+                <label for="email">Email:</label>
+                <input class="form-control" type="email" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="payment-type">Payment Type:</label>
+                <select class="form-select" id="payment-type" name="payment-type" required>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                </select>
+            </div>
+            <div class="card mt-2 mb-3" id="card-payment" style="display: none">
+                <div class="card-header text-bg-primary">
+                    Please fill in your card details:
                 </div>
-                <div class="mb-3">
-                    <label for="expiryDate">Date of expiration:</label>
-                    <input class="form-control" type="text" id="expiryDate" name="expiryDate">
-                </div>
-                <div class="mb-3">
-                    <label for="code">CVV/CVC:</label>
-                    <input class="form-control" type="text" id="code" name="code">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="cardNumber">Card number:</label>
+                        <input class="form-control" type="text" id="cardNumber" name="cardNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiryDate">Date of expiration:</label>
+                        <input class="form-control" type="text" id="expiryDate" name="expiryDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="code">CVV/CVC:</label>
+                        <input class="form-control" type="text" id="code" name="code">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="mb-3">
-            <label for="premium-option">Type of premium:</label>
-            <select class="form-select" id="premium-option" name="premium-option" required>
-                <option value="1">1 month</option>
-                <option value="3">3 months</option>
-                <option value="6">6 months</option>
-                <option value="12">12 months</option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Confirm</button>
-    </form>
+            <div class="mb-3">
+                <label for="premium-option">Type of premium:</label>
+                <select class="form-select" id="premium-option" name="premium-option" required>
+                    <option value="1">1 month</option>
+                    <option value="3">3 months</option>
+                    <option value="6">6 months</option>
+                    <option value="12">12 months</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+    </div>
     <script>
         document.getElementById('paymentForm').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -77,15 +79,17 @@
                 body: JSON.stringify(formData)
             })
                 .then(function (response) {
-                    var messageElement = document.getElementById('message');
-
+                    var messageElement = document.createElement('div');
+                    var where = document.getElementsByTagName("h1")[0];
                     if (response.status === 200) {
-                        messageElement.textContent = 'Úspěšně odesláno!';
-                        messageElement.style.color = 'green';
+                        messageElement.className = 'alert alert-success';
+                        messageElement.textContent = 'Payment was successful!';
                     } else {
-                        messageElement.textContent = 'Došlo k chybě při odesílání.';
-                        messageElement.style.color = 'red';
+                        messageElement.className = 'alert alert-danger';
+                        messageElement.textContent = 'Error occurred! Please try again or contact support!';
                     }
+
+                    where.insertAdjacentElement('afterend', messageElement);
                 })
                 .catch(function (error) {
                     console.error('Error:', error);

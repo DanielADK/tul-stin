@@ -3,6 +3,7 @@
 namespace StinWeatherApp\Model;
 
 use DateTime;
+use Exception;
 use Random\RandomException;
 
 class User {
@@ -69,5 +70,27 @@ class User {
 
 	public function getPremiumUntil(): DateTime|null {
 		return $this->premiumUntil;
+	}
+
+	public static function getUserByUsername(string $username): User {
+		$result = Db::queryOne("SELECT * FROM user WHERE username = ?", [$username]);
+		return self::parseFromArray($result);
+	}
+
+	/**
+	 */
+	private static function parseFromArray(array $row): User {
+		$user = new User($row['id'], $row['username'], $row['email']);
+		if ($row['api_key'] !== null) {
+			$user->apiKey = $row['api_key'];
+		}
+		if ($row['premium_until'] !== null) {
+			try {
+				$user->premiumUntil = new DateTime($row['premium_until']);
+			} catch (Exception $e) {
+				$user->premiumUntil = null;
+			}
+		}
+		return $user;
 	}
 }

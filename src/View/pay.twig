@@ -1,0 +1,104 @@
+{% extends "template.twig" %}
+
+{% block content %}
+    <h1>Pay for premium access!</h1>
+
+    <form class="col-6 g-3" id="paymentForm" method="POST">
+        <div class="mb-3">
+            <label class="form-label" for="username">Username:</label>
+            <input class="form-control" type="text" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="email">Email:</label>
+            <input class="form-control" type="email" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="payment-type">Payment Type:</label>
+            <select class="form-select" id="payment-type" name="payment-type" required>
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+            </select>
+        </div>
+        <div class="card mt-2 mb-3" id="card-payment" style="display: none">
+            <div class="card-header text-bg-primary">
+                Please fill in your card details:
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="cardNumber">Card number:</label>
+                    <input class="form-control" type="text" id="cardNumber" name="cardNumber">
+                </div>
+                <div class="mb-3">
+                    <label for="expiryDate">Date of expiration:</label>
+                    <input class="form-control" type="text" id="expiryDate" name="expiryDate">
+                </div>
+                <div class="mb-3">
+                    <label for="code">CVV/CVC:</label>
+                    <input class="form-control" type="text" id="code" name="code">
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="premium-option">Type of premium:</label>
+            <select class="form-select" id="premium-option" name="premium-option" required>
+                <option value="1">1 month</option>
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="12">12 months</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm</button>
+    </form>
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var username = document.getElementById('username').value;
+            var email = document.getElementById('email').value;
+            var cardNumber = document.getElementById('cardNumber').value;
+            var expiryDate = document.getElementById('expiryDate').value;
+            var code = document.getElementById('code').value;
+            var premiumOption = document.getElementById('premium-option').value;
+
+            var formData = {
+                username: username,
+                email: email,
+                cardNumber: cardNumber,
+                expiryDate: expiryDate,
+                code: code,
+                premiumOption: premiumOption
+            };
+
+            fetch('/api/payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(function (response) {
+                    var messageElement = document.getElementById('message');
+
+                    if (response.status === 200) {
+                        messageElement.textContent = 'Úspěšně odesláno!';
+                        messageElement.style.color = 'green';
+                    } else {
+                        messageElement.textContent = 'Došlo k chybě při odesílání.';
+                        messageElement.style.color = 'red';
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        });
+        document.getElementById('payment-type').addEventListener('change', function (event) {
+            var cardPaymentElement = document.getElementById('card-payment');
+
+            if (event.target.value === 'card') {
+                cardPaymentElement.style.display = 'block';
+            } else {
+                cardPaymentElement.style.display = 'none';
+            }
+        });
+    </script>
+{% endblock %}

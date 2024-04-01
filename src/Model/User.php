@@ -1,14 +1,19 @@
 <?php
 
+namespace StinWeatherApp\Model;
+
+use DateTime;
+use Random\RandomException;
+
 class User {
 	private int $id;
 	private string $username;
 	private string $email;
-	private string $apiKey;
+	private string|null $apiKey = null;
+	private DateTime|null $premiumUntil = null;
 
 	public function __construct(int $id, string $username, string $email) {
 		$this->id = $id;
-		$this->apiKey = hash('sha256', $username . $email);
 		$this->username = $username;
 		$this->email = $email;
 	}
@@ -20,15 +25,6 @@ class User {
 
 	public function getId(): int {
 		return $this->id;
-	}
-
-	public function setApiKey(string $apiKey): User {
-		$this->apiKey = $apiKey;
-		return $this;
-	}
-
-	public function getApiKey(): string {
-		return $this->apiKey;
 	}
 
 	public function setUsername(string $username): User {
@@ -49,4 +45,29 @@ class User {
 		return $this->email;
 	}
 
+	public function generateApiKey(): User {
+		try {
+			$this->apiKey = hash("sha256", random_bytes(64));
+		} catch (RandomException $e) {
+			$this->apiKey = hash("sha256",
+				$this->id
+				. $this->username
+				. $this->email
+				. (new DateTime())->format("Y-m-d H:i:s"));
+		}
+		return $this;
+	}
+
+	public function getApiKey(): string|null {
+		return $this->apiKey;
+	}
+
+	public function setPremiumUntil(DateTime $premiumUntil): User {
+		$this->premiumUntil = $premiumUntil;
+		return $this;
+	}
+
+	public function getPremiumUntil(): DateTime|null {
+		return $this->premiumUntil;
+	}
 }

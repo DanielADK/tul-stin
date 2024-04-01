@@ -43,4 +43,13 @@ class XMLPaymentParser implements PaymentParserInterface {
 			->setStatus((string)$xml->status ?: "pending");
 		return $pb->build();
 	}
+
+	/**
+	 * @inheritdoc
+	 */
+	#[\Override]
+	public function canParse(string $input): bool {
+		$xml = simplexml_load_string($input);
+		return $xml !== false;
+	}
 }

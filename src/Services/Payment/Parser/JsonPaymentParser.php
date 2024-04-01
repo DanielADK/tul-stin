@@ -44,4 +44,11 @@ class JsonPaymentParser implements PaymentParserInterface {
 		return $pb->build();
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	#[\Override]
+	public function canParse(string $input): bool {
+		return json_validate($input);
+	}
 }

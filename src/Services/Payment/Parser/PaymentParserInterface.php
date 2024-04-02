@@ -27,13 +27,4 @@ interface PaymentParserInterface {
 	 * @throws Exception
 	 */
 	public function parse(string $data): Payment;
-
-	/**
-	 * @description Checks if the parser can parse the input
-	 *
-	 * @param string $input
-	 *
-	 * @return bool
-	 */
-	public function canParse(string $input): bool;
 }

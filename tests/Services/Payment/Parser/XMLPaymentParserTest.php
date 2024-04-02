@@ -5,14 +5,14 @@ namespace Services\Payment\Parser;
 use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use StinWeatherApp\Services\Payment\Parser\XMLPaymentParser;
+use StinWeatherApp\Services\Payment\Parser\XmlPaymentParser;
 
 class XMLPaymentParserTest extends TestCase {
 
-	private XMLPaymentParser $parser;
+	private XmlPaymentParser $parser;
 
 	protected function setUp(): void {
-		$this->parser = new XMLPaymentParser();
+		$this->parser = new XmlPaymentParser();
 		error_reporting(E_ALL);
 	}
 

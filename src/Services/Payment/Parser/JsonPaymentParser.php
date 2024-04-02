@@ -4,19 +4,21 @@ namespace StinWeatherApp\Services\Payment\Parser;
 
 use DateTime;
 use InvalidArgumentException;
+use StinWeatherApp\Component\Parser\JsonParseable;
 use StinWeatherApp\Model\Builder\PaymentBuilder;
+use StinWeatherApp\Model\Card;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
 
 /**
- * Class JsonPaymentParser
+ * Class JsonPremiumParser
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @description Parses the JSON data into a Payment object
  * @package StinWeatherApp\Services\Payment\Parser
  */
-class JsonPaymentParser implements PaymentParserInterface {
+class JsonPaymentParser extends JsonParseable implements PaymentParserInterface {
 
 	/**
 	 * @inheritdoc
@@ -41,14 +43,17 @@ class JsonPaymentParser implements PaymentParserInterface {
 			->setDatetime(new DateTime($paymentData['datetime'] ?? "now"))
 			->setType(PaymentType::from($paymentData['type']))
 			->setStatus($paymentData['status'] ?? "pending");
-		return $pb->build();
-	}
 
-	/**
-	 * @inheritdoc
-	 */
-	#[\Override]
-	public function canParse(string $input): bool {
-		return json_validate($input);
+		if (PaymentType::from($paymentData['type']) == PaymentType::CARD) {
+			foreach (Card::cardKeys as $key) {
+				if (!array_key_exists($key, $paymentData)) {
+					throw new InvalidArgumentException("Missing required key: {$key}");
+				}
+			}
+			$card = new Card($paymentData["cardNumber"], $paymentData["expiryDate"], $paymentData["code"]);
+			$pb->setCard($card);
+		}
+
+		return $pb->build();
 	}
 }

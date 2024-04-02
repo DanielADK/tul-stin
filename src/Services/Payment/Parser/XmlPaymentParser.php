@@ -5,12 +5,13 @@ namespace StinWeatherApp\Services\Payment\Parser;
 use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
+use StinWeatherApp\Component\Parser\XmlParseable;
 use StinWeatherApp\Model\Builder\PaymentBuilder;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
 
-class XMLPaymentParser implements PaymentParserInterface {
+class XmlPaymentParser extends XmlParseable implements PaymentParserInterface {
 
 	/**
 	 * @inheritdoc
@@ -42,14 +43,5 @@ class XMLPaymentParser implements PaymentParserInterface {
 			->setType(isset($xml->type) ? PaymentType::from((string)$xml->type) : PaymentType::CASH)
 			->setStatus((string)$xml->status ?: "pending");
 		return $pb->build();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	#[\Override]
-	public function canParse(string $input): bool {
-		$xml = simplexml_load_string($input);
-		return $xml !== false;
 	}
 }

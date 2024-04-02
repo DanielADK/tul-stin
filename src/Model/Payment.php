@@ -5,6 +5,7 @@ namespace StinWeatherApp\Model;
 use Datetime;
 use Exception;
 use StinWeatherApp\Component\Database\Db;
+use StinWeatherApp\Component\Database\PersistableInterface;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
 
@@ -15,7 +16,7 @@ use StinWeatherApp\Model\Types\PaymentType;
  * @description Model for payment
  * @package StinWeatherApp\Model
  */
-class Payment {
+class Payment implements PersistableInterface {
 	private int $id;
 	private float $amount;
 	private Currency $currency;
@@ -217,7 +218,7 @@ class Payment {
 	 * @return Payment|null
 	 * @throws Exception
 	 */
-	public static function getById(int $id): ?Payment {
+	public static function getById(int $id): ?self {
 		$data = Db::queryOne('SELECT * FROM payment WHERE id = :id', ['id' => $id]);
 
 		if ($data) {

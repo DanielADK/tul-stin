@@ -41,7 +41,9 @@ class Premium extends Buyable implements PersistableInterface {
 
 		$premiums = array();
 		foreach ($result as $row) {
-			$premiums[] = new Premium((string)$row['name'], (float)$row['price'], (int)$row['duration']);
+			if (is_array($row)) {
+				$premiums[] = new Premium($row['name'], $row['price'], $row['duration']);
+			}
 		}
 		return $premiums;
 	}
@@ -53,7 +55,7 @@ class Premium extends Buyable implements PersistableInterface {
 	public static function getById(int|string $id): ?self {
 		$data = Db::queryOne('SELECT * FROM premium WHERE name = :id', ['id' => $id]);
 
-		if ($data) {
+		if (is_array($data)) {
 			return new Premium($data['name'], $data['price'], $data['duration']);
 		} else {
 			return null;

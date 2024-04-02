@@ -23,9 +23,10 @@ abstract class Db {
 
 	/**
 	 * Processes parameters to convert them into a database-friendly format.
-	 * @param array<string, int|string|DateTime> $params
 	 *
-	 * @return array<string, int|string>
+	 * @param array<string, int|float|string|DateTime> $params
+	 *
+	 * @return array<string, int|float|string>
 	 */
 	private static function processParameters(array $params = array()): array {
 		$new_params = array();
@@ -42,7 +43,7 @@ abstract class Db {
 	 * One row query
 	 *
 	 * @param string $query
-	 * @param array<string, int|string> $params
+	 * @param array<string, int|float|string> $params
 	 *
 	 * @return mixed
 	 */
@@ -57,7 +58,7 @@ abstract class Db {
 	 * All rows query
 	 *
 	 * @param string               $query
-	 * @param array<string, int|string> $params
+	 * @param array<string, int|float|string> $params
 	 *
 	 * @return false|array<string, mixed>
 	 */
@@ -72,7 +73,7 @@ abstract class Db {
 	 * One row, one column query
 	 *
 	 * @param string $query
-	 * @param array<string, DateTime|int|string> $params
+	 * @param array<string, int|float|string|DateTime> $params
 	 *
 	 * @return mixed
 	 */
@@ -86,7 +87,7 @@ abstract class Db {
 	 * Execute query and return number of affected rows
 	 *
 	 * @param string $query
-	 * @param array<string, string|int> $params
+	 * @param array<string, int> $params
 	 *
 	 * @return int
 	 */

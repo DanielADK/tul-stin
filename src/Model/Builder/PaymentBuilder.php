@@ -4,6 +4,7 @@ namespace StinWeatherApp\Model\Builder;
 
 use DateTime;
 use InvalidArgumentException;
+use StinWeatherApp\Model\Card;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
@@ -21,6 +22,8 @@ class PaymentBuilder {
 	private DateTime $datetime;
 	private PaymentType $type;
 	private string $status;
+
+	private Card|null $card = null;
 
 	/**
 	 * Set the amount for the Payment.
@@ -82,6 +85,18 @@ class PaymentBuilder {
 	 */
 	public function setStatus(string $status): self {
 		$this->status = $status;
+		return $this;
+	}
+
+	/**
+	 * Set the card for the Payment.
+	 *
+	 * @param Card $card
+	 *
+	 * @return self
+	 */
+	public function setCard(Card $card): self {
+		$this->card = $card;
 		return $this;
 	}
 

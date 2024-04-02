@@ -213,12 +213,12 @@ class Payment implements PersistableInterface {
 	/**
 	 * @description Gets the payment by id
 	 *
-	 * @param int $id
+	 * @param int|string $id
 	 *
 	 * @return Payment|null
 	 * @throws Exception
 	 */
-	public static function getById(int $id): ?self {
+	public static function getById(int|string $id): ?self {
 		$data = Db::queryOne('SELECT * FROM payment WHERE id = :id', ['id' => $id]);
 
 		if ($data) {

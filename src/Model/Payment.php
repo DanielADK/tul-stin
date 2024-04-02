@@ -24,6 +24,8 @@ class Payment implements PersistableInterface {
 	private PaymentType $type;
 	/** @var string PREPROCESSING,PAYMENT,DONE,FAILED */
 	private string $status;
+	/** @var Card|null $card */
+	private Card|null $card = null;
 
 	/**
 	 * Payment constructor.
@@ -160,6 +162,15 @@ class Payment implements PersistableInterface {
 	 */
 	public function getStatus(): string {
 		return $this->status;
+	}
+
+	public function setCard(?Card $card): Payment {
+		$this->card = $card;
+		return $this;
+	}
+
+	public function getCard(): ?Card {
+		return $this->card;
 	}
 
 	/**

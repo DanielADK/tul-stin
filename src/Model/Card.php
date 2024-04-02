@@ -10,6 +10,8 @@ namespace StinWeatherApp\Model;
  * @package StinWeatherApp\Model
  */
 class Card {
+
+	public const array cardKeys = ['cardNumber', 'expiryDate', 'code'];
 	private string $number;
 	private string $expiration;
 	private string $code;

@@ -35,6 +35,12 @@ class CashPaymentService implements PaymentServiceInterface {
 	#[\Override]
 	public function processPayment(Payment $payment): bool {
 		$payment->setType(PaymentType::CASH);
-		return $this->paymentServiceProcess->pay($payment);
+		if ($this->paymentServiceProcess->pay($payment)) {
+			$payment->setStatus("DONE");
+			return true;
+		} else {
+			$payment->setStatus("FAILED");
+			return false;
+		}
 	}
 }

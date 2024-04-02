@@ -3,6 +3,8 @@
 namespace StinWeatherApp\Model;
 
 use Datetime;
+use Exception;
+use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
 
@@ -14,10 +16,12 @@ use StinWeatherApp\Model\Types\PaymentType;
  * @package StinWeatherApp\Model
  */
 class Payment {
+	private int $id;
 	private float $amount;
 	private Currency $currency;
 	private DateTime $datetime;
 	private PaymentType $type;
+	/** @var string PREPROCESSING,PAYMENT,DONE,FAILED */
 	private string $status;
 
 	/**
@@ -35,6 +39,26 @@ class Payment {
 		$this->datetime = $datetime;
 		$this->type = $type;
 		$this->status = $status;
+	}
+
+	/**
+	 * @description Sets the id
+	 *
+	 * @param int $id
+	 *
+	 * @return Payment
+	 */
+	public function setId(int $id): Payment {
+		$this->id = $id;
+		return $this;
+	}
+
+	/**
+	 * @description Gets the id
+	 * @return int
+	 */
+	public function getId(): int {
+		return $this->id;
 	}
 
 	/**
@@ -135,5 +159,79 @@ class Payment {
 	 */
 	public function getStatus(): string {
 		return $this->status;
+	}
+
+	/**
+	 * @description Saves the payment to the database
+	 * @throws Exception
+	 */
+	public function persist(): bool {    // Prepare the data for insertion or update
+		$data = [
+			'amount' => $this->getAmount(),
+			'currency' => $this->getCurrency()->value,
+			'datetime' => $this->getDatetime()->format('Y-m-d H:i:s'),
+			'type' => $this->getType()->value,
+			'status' => $this->getStatus(),
+		];
+
+		if ($this->id) {
+			$data = array_merge($data, ['id' => $this->id]);
+			// Update the existing record
+			$result = Db::queryOne('UPDATE payment 
+				SET 
+                   amount = :amount,
+                   currency = :currency,
+                   datetime = :datetime,
+                   type = :type,
+                   status = :status
+               WHERE id = :id',
+				$data);
+		} else {
+			// Insert a new record
+			$result = Db::queryOne('INSERT INTO payment (amount, currency, datetime, type, status) 
+											VALUES (:amount, :currency, :datetime, :type, :status)', $data);
+			if ($result) {
+				// Get the last insert id
+				$id = Db::queryCell('SELECT last_insert_rowid()');;
+				if (is_int($id)) {
+					$this->setId($id);
+				} else {
+					throw new Exception('Failed to get the last insert id.');
+				}
+			}
+		}
+
+		// Check if the operation was successful
+		if ($result) {
+			return true;
+		} else {
+			throw new Exception('Failed to save the payment.');
+		}
+	}
+
+	/**
+	 * @description Gets the payment by id
+	 *
+	 * @param int $id
+	 *
+	 * @return Payment|null
+	 * @throws Exception
+	 */
+	public static function getById(int $id): ?Payment {
+		$data = Db::queryOne('SELECT * FROM payment WHERE id = :id', ['id' => $id]);
+
+		if ($data) {
+			$payment = new Payment(
+				$data['amount'],
+				Currency::from($data['currency']),
+				new DateTime($data['datetime']),
+				PaymentType::from($data['type']),
+				$data['status']
+			);
+			$payment->setId($data['id']);
+			return $payment;
+		} else {
+			return null;
+		}
 	}
 }

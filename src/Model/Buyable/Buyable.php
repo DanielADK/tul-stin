@@ -2,6 +2,8 @@
 
 namespace StinWeatherApp\Model\Buyable;
 
+use StinWeatherApp\Model\Types\Currency;
+
 /**
  * Abstract Class Buyable
  *
@@ -12,6 +14,7 @@ namespace StinWeatherApp\Model\Buyable;
 abstract class Buyable {
 	private string $name;
 	private float $price;
+	private Currency $currency;
 
 	public function getName(): string {
 		return $this->name;
@@ -31,5 +34,12 @@ abstract class Buyable {
 		return $this;
 	}
 
+	public function getCurrency(): Currency {
+		return $this->currency;
+	}
 
+	public function setCurrency(Currency $currency): Buyable {
+		$this->currency = $currency;
+		return $this;
+	}
 }

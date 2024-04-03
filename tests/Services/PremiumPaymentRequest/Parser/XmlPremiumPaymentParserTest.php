@@ -12,7 +12,7 @@ class XmlPremiumPaymentParserTest extends TestCase {
 	private XmlPremiumPaymentParser $parser;
 
 	public function testParseWithValidInput(): void {
-		$xml = '<root><username>test</username><email>test@example.com</email><premiumOption>option1</premiumOption><paymentType>card</paymentType><card><cardNumber>1234567890123456</cardNumber><cardExpiration>12/23</cardExpiration><cardCode>123</cardCode></card></root>';
+		$xml = '<root><username>test</username><premiumOption>option1</premiumOption><paymentType>card</paymentType><card><cardNumber>1234567890123456</cardNumber><cardExpiration>12/23</cardExpiration><cardCode>123</cardCode></card></root>';
 		$expected = [
 			'username' => 'test',
 			'premiumOption' => 'option1',

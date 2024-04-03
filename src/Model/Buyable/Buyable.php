@@ -48,6 +48,10 @@ abstract class Buyable {
 		return $this->currency;
 	}
 
+	public function getCurrencyString(): string {
+		return $this->currency->value;
+	}
+
 	public function setCurrency(Currency $currency): Buyable {
 		$this->currency = $currency;
 		return $this;

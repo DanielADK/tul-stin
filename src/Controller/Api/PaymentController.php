@@ -2,6 +2,7 @@
 
 namespace StinWeatherApp\Controller\Api;
 
+use DateTime;
 use Exception;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
@@ -75,8 +76,11 @@ class PaymentController extends AbstractController {
 		$pb = (new PaymentBuilder())
 			->setCard($card)
 			->setAmount($premium->getPrice())
-			->setCurrency(Currency::from($array["currency"]))
-			->setType($paymentType);
+			->setCurrency(Currency::fromString($array["currency"]))
+			->setType($paymentType)
+			->setDatetime(new DateTime())
+			->setStatus("NONE")
+
 
 		if ($paymentType === PaymentType::CARD) {
 			$pb->setCard(new Card(
@@ -117,11 +121,18 @@ class PaymentController extends AbstractController {
 		return $response;
 	}
 
+	/**
+	 * @description Extracts card from array
+	 *
+	 * @param array<string, array<string, string>> $array
+	 *
+	 * @return Card
+	 */
 	private function extractCard(array $array): Card {
 		return new Card(
-			$array["card"]["number"],
-			$array["card"]["expiration"],
-			$array["card"]["cvc"]
+			$array["card"]["cardNumber"],
+			$array["card"]["cardExpiration"],
+			$array["card"]["cardCode"]
 		);
 	}
 

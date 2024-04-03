@@ -15,4 +15,14 @@ enum Currency: string {
 
 		return false;
 	}
+
+	public static function fromString(string $value): ?Currency {
+		$value = strtoupper($value);
+		foreach (self::cases() as $case) {
+			if ($value === $case->value) {
+				return $case;
+			}
+		}
+		return null;
+	}
 }

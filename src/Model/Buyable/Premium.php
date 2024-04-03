@@ -6,6 +6,7 @@ use Exception;
 use Override;
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\PersistableInterface;
+use StinWeatherApp\Model\Types\Currency;
 
 /**
  * Class Premium
@@ -25,10 +26,31 @@ class Premium extends Buyable implements PersistableInterface {
 	 * @param float  $price
 	 * @param int    $duration
 	 */
-	public function __construct(string $name, float $price, int $duration) {
+	public function __construct(string $name, float $price, int $duration, Currency $currency) {
 		$this->setName($name);
 		$this->setPrice($price);
+		$this->setDuration($duration);
+		$this->setCurrency($currency);
+	}
+
+	/**
+	 * @description Returns the duration
+	 * @return int
+	 */
+	public function getDuration(): int {
+		return $this->duration;
+	}
+
+	/**
+	 * @description Sets the duration
+	 *
+	 * @param int $duration
+	 *
+	 * @return Premium
+	 */
+	public function setDuration(int $duration): self {
 		$this->duration = $duration;
+		return $this;
 	}
 
 	/**
@@ -44,7 +66,9 @@ class Premium extends Buyable implements PersistableInterface {
 		$premiums = array();
 		foreach ($result as $row) {
 			if (is_array($row)) {
-				$premiums[] = new Premium($row['name'], $row['price'], $row['duration']);
+				$new = new Premium($row['name'], $row['price'], $row['duration'], Currency::fromString($row["currency"]));
+				$new->setId($row["id"]);
+				$premiums[] = $new;
 			}
 		}
 		return $premiums;
@@ -58,16 +82,12 @@ class Premium extends Buyable implements PersistableInterface {
 		$data = Db::queryOne('SELECT * FROM premium WHERE id = :id', ['id' => $id]);
 
 		if (is_array($data)) {
-			$premium = new Premium($data['name'], $data['price'], $data['duration']);
+			$premium = new Premium($data['name'], $data['price'], $data['duration'], Currency::fromString($data["currency"]));
 			$premium->setId($data["id"]);
 			return $premium;
 		} else {
 			return null;
 		}
-	}
-
-	public function getDuration(): int {
-		return $this->duration;
 	}
 
 	/**

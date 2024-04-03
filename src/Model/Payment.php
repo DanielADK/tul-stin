@@ -23,7 +23,7 @@ class Payment implements PersistableInterface {
 	private Currency $currency;
 	private DateTime $datetime;
 	private PaymentType $type;
-	/** @var string PREPROCESSING,PAYMENT,DONE,FAILED */
+	/** @var string NONE,PREPROCESSING,PAYMENT,DONE,FAILED */
 	private string $status;
 	/** @var Card|null $card NOT PERSISTING */
 	private Card|null $card = null;

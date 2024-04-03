@@ -3,7 +3,6 @@
 namespace StinWeatherApp\Services\Payment\Service;
 
 use StinWeatherApp\Model\Payment;
-use StinWeatherApp\Model\Types\PaymentType;
 use StinWeatherApp\Services\Payment\PaymentServiceProcess;
 
 /**
@@ -34,13 +33,9 @@ class CardPaymentService implements PaymentServiceInterface {
 	 */
 	#[\Override]
 	public function processPayment(Payment $payment): bool {
-		$payment->setType(PaymentType::CARD);
-		if ($this->paymentServiceProcess->pay($payment)) {
-			$payment->setStatus("DONE");
-			return true;
-		} else {
-			$payment->setStatus("FAILED");
-			return false;
-		}
+		// logic with card
+		$card = $payment->getCard();
+		// Payment
+		return $this->paymentServiceProcess->pay($payment);
 	}
 }

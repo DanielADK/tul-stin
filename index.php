@@ -33,5 +33,4 @@ $router->addRoute("/time", HomeController::class, "time");
 
 // API Routes
 $router->addRoute("/api/payment", ApiPaymentController::class, "processPayment", Method::POST);
-
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

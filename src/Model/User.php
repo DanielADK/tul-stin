@@ -5,18 +5,18 @@ namespace StinWeatherApp\Model;
 use DateTime;
 use Exception;
 use Random\RandomException;
+use StinWeatherApp\Component\Database\Db;
+use StinWeatherApp\Component\Database\PersistableInterface;
 
-class User {
+class User implements PersistableInterface {
 	private int $id;
 	private string $username;
-	private string $email;
 	private string|null $apiKey = null;
 	private DateTime|null $premiumUntil = null;
 
-	public function __construct(int $id, string $username, string $email) {
+	public function __construct(int $id, string $username) {
 		$this->id = $id;
 		$this->username = $username;
-		$this->email = $email;
 	}
 
 	public function setId(int $id): User {
@@ -37,15 +37,6 @@ class User {
 		return $this->username;
 	}
 
-	public function setEmail(string $email): User {
-		$this->email = $email;
-		return $this;
-	}
-
-	public function getEmail(): string {
-		return $this->email;
-	}
-
 	public function generateApiKey(): User {
 		try {
 			$this->apiKey = hash("sha256", random_bytes(64));
@@ -53,7 +44,6 @@ class User {
 			$this->apiKey = hash("sha256",
 				$this->id
 				. $this->username
-				. $this->email
 				. (new DateTime())->format("Y-m-d H:i:s"));
 		}
 		return $this;
@@ -93,4 +83,61 @@ class User {
 		}
 		return $user;
 	}
+
+	/**
+	 * @return bool
+	 * @throws Exception
+	 */
+	#[\Override]
+	public function persist(): bool {
+		$data = [
+			'username' => $this->username,
+			'api_key' => $this->apiKey,
+			'premium_until' => $this->premiumUntil,
+		];
+
+		if ($this->id) {
+			$data = array_merge($data, ['id' => $this->id]);
+			// Update the existing record
+			$result = Db::queryOne('UPDATE user 
+				SET 
+				   username = :username,
+				   api_key = :api_key,
+				   premium_until = :premium_until
+			   WHERE id = :id',
+				$data);
+		} else {
+			// Insert a new record
+			$result = Db::queryOne('INSERT INTO user (username, api_key, premium_until) 
+											VALUES (:username, :api_key, :premium_until)', $data);
+			if ($result) {
+				// Get the last insert id
+				$id = Db::queryCell('SELECT last_insert_rowid()');;
+				if (is_int($id)) {
+					$this->setId($id);
+				} else {
+					throw new Exception('Failed to get the last insert id.');
+				}
+			}
+		}
+
+		// Check if the operation was successful
+		if ($result) {
+			return true;
+		} else {
+			throw new Exception('Failed to save the user.');
+		}
+
+	}
+
+	/**
+	 * @param int|string $id
+	 *
+	 * @return User
+	 */
+	#[\Override]
+	public static function getById(int|string $id): User {
+		return self::getUserByUsername($id);
+	}
+
 }

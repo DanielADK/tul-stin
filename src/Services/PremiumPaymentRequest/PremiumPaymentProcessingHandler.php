@@ -2,7 +2,7 @@
 
 namespace StinWeatherApp\Services\PremiumPaymentRequest;
 
-use StinWeatherApp\Model\Buyable\Premium;
+use Exception;
 
 /**
  * Class PaymentProcessingHandler
@@ -11,22 +11,23 @@ use StinWeatherApp\Model\Buyable\Premium;
  * @description Handler for payment processing
  * @package StinWeatherApp\Services\Payment
  */
-class PremiumProcessingHandler {
-	private PremiumTransformer $premiumTransformer;
+class PremiumPaymentProcessingHandler {
+	private PremiumPaymentTransformer $premiumTransformer;
 
 	/**
 	 * PaymentProcessingHandler constructor.
 	 *
-	 * @param PremiumTransformer $premiumTransformer
+	 * @param PremiumPaymentTransformer $premiumTransformer
 	 */
-	public function __construct(PremiumTransformer $premiumTransformer) {
+	public function __construct(PremiumPaymentTransformer $premiumTransformer) {
 		$this->premiumTransformer = $premiumTransformer;
 	}
 
 	/**
-	 * @throws \Exception
+	 * @return array<string, string>
+	 * @throws Exception
 	 */
-	public function getPremiumFromPayload(string $payload): Premium {
+	public function getPremiumFromPayload(string $payload): array {
 		return $this->premiumTransformer->transform($payload);
 	}
 }

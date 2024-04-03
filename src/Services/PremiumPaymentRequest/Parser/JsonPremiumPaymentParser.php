@@ -29,14 +29,14 @@ class JsonPremiumPaymentParser extends JsonParseable implements PremiumPaymentPa
 		// Payment required keys
 		// PaymentTypes are uppered
 		$paymentType = PaymentType::tryFrom(strtoupper($data["paymentType"]));
-		if ($paymentType !== null && in_array(self::cardKey, $data)) {
+		if ($paymentType !== null && array_key_exists(self::cardKey, $data)) {
 			foreach (self::cardKeys as $key) {
 				if (!array_key_exists($key, $data["card"])) {
 					throw new InvalidArgumentException("Missing required key: {$key}");
 				}
 			}
 		} else {
-			throw new InvalidArgumentException("Invalid payment type");
+			throw new InvalidArgumentException("Invalid payment type.");
 		}
 
 		return $data;

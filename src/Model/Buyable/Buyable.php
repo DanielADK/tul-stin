@@ -12,9 +12,19 @@ use StinWeatherApp\Model\Types\Currency;
  * @package StinWeatherApp\Model\Buyable
  */
 abstract class Buyable {
+	private int $id;
 	private string $name;
 	private float $price;
 	private Currency $currency;
+
+	public function getId(): int {
+		return $this->id;
+	}
+
+	public function setId(int $id): Buyable {
+		$this->id = $id;
+		return $this;
+	}
 
 	public function getName(): string {
 		return $this->name;

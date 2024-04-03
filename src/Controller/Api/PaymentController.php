@@ -26,7 +26,6 @@ class PaymentController extends AbstractController {
 
 	public function __construct(Request $request) {
 		parent::__construct($request);
-		$paymentTransformer = new PaymentTransformer();
 		$premiumTransformer = new PremiumPaymentTransformer();
 		$paymentProcess = new PaymentServiceProcess();
 		$cardPaymentService = new CardPaymentService($paymentProcess);
@@ -35,7 +34,6 @@ class PaymentController extends AbstractController {
 		$this->paymentProcessingHandler = new PaymentProcessingHandler(
 			$cardPaymentService,
 			$cashPaymentService,
-			$paymentTransformer,
 			$premiumTransformer
 		);
 		$this->premiumPaymentProcessingHandler = new PremiumPaymentProcessingHandler(

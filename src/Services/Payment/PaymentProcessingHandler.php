@@ -19,7 +19,6 @@ use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
 class PaymentProcessingHandler {
 	/** @var array<string, PaymentServiceInterface> */
 	private array $paymentServices;
-	private PaymentTransformer $paymentTransformer;
 	private PremiumPaymentTransformer $premiumTransformer;
 
 	/**
@@ -27,16 +26,10 @@ class PaymentProcessingHandler {
 	 *
 	 * @param CardPaymentService        $cardPaymentService
 	 * @param CashPaymentService        $cashPaymentService
-	 * @param PaymentTransformer        $paymentTransformer
-	 * @param PremiumPaymentTransformer $premiumTransformer
 	 */
 	public function __construct(CardPaymentService $cardPaymentService,
 	                            CashPaymentService $cashPaymentService,
-	                            PaymentTransformer        $paymentTransformer,
-	                            PremiumPaymentTransformer $premiumTransformer
 	) {
-		$this->paymentTransformer = $paymentTransformer;
-		$this->premiumTransformer = $premiumTransformer;
 		$this->paymentServices = [
 			"CARD" => $cardPaymentService,
 			"CASH" => $cashPaymentService

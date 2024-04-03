@@ -18,15 +18,15 @@ use StinWeatherApp\Model\Types\PaymentType;
  * @package StinWeatherApp\Model
  */
 class Payment implements PersistableInterface {
-	private int $id;
+	private ?int $id = null;
 	private float $amount;
 	private Currency $currency;
 	private DateTime $datetime;
 	private PaymentType $type;
 	/** @var string NONE,PREPROCESSING,PAYMENT,DONE,FAILED */
 	private string $status;
-	/** @var Card|null $card NOT PERSISTING */
-	private Card|null $card = null;
+	/** @var ?Card $card NOT PERSISTING */
+	private ?Card $card = null;
 
 	/**
 	 * Payment constructor.

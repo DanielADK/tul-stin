@@ -11,8 +11,8 @@ use StinWeatherApp\Component\Database\PersistableInterface;
 class User implements PersistableInterface {
 	private int $id;
 	private string $username;
-	private string|null $apiKey = null;
-	private DateTime|null $premiumUntil = null;
+	private ?string $apiKey = null;
+	private ?DateTime $premiumUntil = null;
 
 	public function __construct(int $id, string $username) {
 		$this->id = $id;
@@ -70,7 +70,7 @@ class User implements PersistableInterface {
 	/**
 	 */
 	private static function parseFromArray(array $row): User {
-		$user = new User($row['id'], $row['username'], $row['email']);
+		$user = new User($row['id'], $row['username']);
 		if ($row['api_key'] !== null) {
 			$user->apiKey = $row['api_key'];
 		}

@@ -3,7 +3,7 @@
 namespace StinWeatherApp\Services\PremiumPaymentRequest\Parser;
 
 interface PremiumPaymentParserInterface {
-	const array requiredKeys = ['username', 'email', 'premiumOption', "paymentType"];
+	const array requiredKeys = ['username', 'premiumOption', "paymentType"];
 	const string cardKey = "card";
 	const array cardKeys = ['cardNumber', 'cardExpiration', 'cardCode'];
 

@@ -14,10 +14,9 @@ class JsonPremiumPaymentParserTest extends TestCase {
 	}
 
 	public function testParseWithValidInput(): void {
-		$json = '{"username":"test","email":"test@example.com","premiumOption":"option1","paymentType":"card","card":{"cardNumber":"1234567890123456","cardExpiration":"12/23","cardCode":"123"}}';
+		$json = '{"username":"test", "premiumOption":"option1","paymentType":"card","card":{"cardNumber":"1234567890123456","cardExpiration":"12/23","cardCode":"123"}}';
 		$expected = [
 			'username' => 'test',
-			'email' => 'test@example.com',
 			'premiumOption' => 'option1',
 			'paymentType' => 'card',
 			'card' => [
@@ -33,7 +32,7 @@ class JsonPremiumPaymentParserTest extends TestCase {
 	public function testParseWithMissingAttributes(): void {
 		$this->expectException(InvalidArgumentException::class);
 
-		$json = '{"username":"test","email":"test@example.com","premiumOption":"option1"}';
+		$json = '{"username":"test","premiumOption":"option1"}';
 		$this->parser->parse($json);
 	}
 

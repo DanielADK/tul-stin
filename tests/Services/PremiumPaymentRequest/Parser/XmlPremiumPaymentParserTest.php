@@ -15,7 +15,6 @@ class XmlPremiumPaymentParserTest extends TestCase {
 		$xml = '<root><username>test</username><email>test@example.com</email><premiumOption>option1</premiumOption><paymentType>card</paymentType><card><cardNumber>1234567890123456</cardNumber><cardExpiration>12/23</cardExpiration><cardCode>123</cardCode></card></root>';
 		$expected = [
 			'username' => 'test',
-			'email' => 'test@example.com',
 			'premiumOption' => 'option1',
 			'paymentType' => 'card',
 			'card' => [
@@ -31,7 +30,7 @@ class XmlPremiumPaymentParserTest extends TestCase {
 	public function testParseWithMissingAttributes(): void {
 		$this->expectException(InvalidArgumentException::class);
 
-		$xml = '<root><username>test</username><email>test@example.com</email><premiumOption>option1</premiumOption></root>';
+		$xml = '<root><username>test</username><premiumOption>option1</premiumOption></root>';
 		$this->parser->parse($xml);
 	}
 

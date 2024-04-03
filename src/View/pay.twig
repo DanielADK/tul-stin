@@ -97,15 +97,15 @@
                 let where = document.getElementsByTagName("h1")[0];
                 if (response.status === 200) {
                     messageElement.className = 'alert alert-success';
-                    messageElement.textContent = 'Payment was successful!';
                 } else {
                     messageElement.className = 'alert alert-danger';
-                    messageElement.textContent = 'Error occurred! Please try again or contact support   ';
-                    response.text().then(function (text) {
-                        console.log(JSON.parse(text)["status"]);
-                        messageElement.textContent = JSON.parse(text)["status"];
-                    });
                 }
+                response.text().then(function (text) {
+                    let pElement = document.createElement('span');
+                    pElement.style.margin = '0 !important';
+                    pElement.innerHTML = JSON.parse(text)["status"];
+                    messageElement.appendChild(pElement);
+                });
 
                 where.insertAdjacentElement('afterend', messageElement);
             }).catch(function (error) {

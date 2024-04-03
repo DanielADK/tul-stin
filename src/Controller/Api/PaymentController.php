@@ -69,6 +69,8 @@ class PaymentController extends AbstractController {
 			}
 			if ($user === null) {
 				throw new Exception("Invalid user");
+			} elseif ($user->getPremiumUntil() !== null && $user->getPremiumUntil() > new DateTime("now")) {
+				throw new Exception("User already has premium");
 			}
 			if ($paymentType === null) {
 				throw new Exception("Invalid payment type");
@@ -101,11 +103,14 @@ class PaymentController extends AbstractController {
 			$success = $this->paymentProcessingHandler->processPayment($payment);
 			// Payment processed successfully
 			if ($success) {
+				$premiumUntil = new DateTime("now");
+				$premiumUntil->setTimestamp($premiumUntil->getTimestamp() + $premium->getDuration());
 				$user->generateApiKey()
+					->setPremiumUntil($premiumUntil)
 					->persist();
 				$response = new Response(
 					json_encode([
-						"status" => "Payment processed successfully"
+						"status" => "Payment processed successfully. Your API KEY is {$user->getApiKey()}"
 					]) ?: "Payment processed successfully",
 					200);
 			} else {

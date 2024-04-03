@@ -36,12 +36,20 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="premium-option">Type of premium:</label>
-                <select class="form-select" id="premium-option" name="premium-option" required>
-                    <option value="1">1 month</option>
-                    <option value="3">3 months</option>
-                    <option value="6">6 months</option>
-                    <option value="12">12 months</option>
+                <label for="currency">Currency:</label>
+                <select class="form-select" id="currency" name="currency" required>
+                    <option value="czk">CZK</option>
+                    <option value="eur">EUR</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="premiumOption">Type of premium:</label>
+                <select class="form-select" id="premiumOption" name="premiumOption" required>
+                    {% for premium in premiumList %}
+                        <option value="{{ premium.id }}">{{ premium.name }}
+                            ({{ premium.price }} {{ premium.currencyString }})
+                        </option>
+                    {% endfor %}
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Confirm</button>
@@ -56,7 +64,8 @@
             const cardNumber = document.getElementById('cardNumber').value;
             const cardExpiration = document.getElementById('cardExpiration').value;
             const cardCode = document.getElementById('cardCode').value;
-            const premiumOption = document.getElementById('premium-option').value;
+            const currency = document.getElementById('currency').value;
+            const premiumOption = document.getElementById('premiumOption').value;
 
             const formData = {
                 username: username,
@@ -66,6 +75,7 @@
                     cardExpiration: cardExpiration,
                     cardCode: cardCode,
                 },
+                currency: currency,
                 premiumOption: premiumOption
             };
 
@@ -76,7 +86,14 @@
                 },
                 body: JSON.stringify(formData)
             }).then(function (response) {
+                // Remove old message if exists
+                let oldMessageElement = document.getElementById('message');
+                if (oldMessageElement) {
+                    oldMessageElement.remove();
+                }
+
                 let messageElement = document.createElement('div');
+                messageElement.id = 'message'; // Add id to the message element
                 let where = document.getElementsByTagName("h1")[0];
                 if (response.status === 200) {
                     messageElement.className = 'alert alert-success';

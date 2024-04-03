@@ -5,7 +5,7 @@ namespace StinWeatherApp\Services\Payment;
 use Exception;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Services\Payment\Parser\JsonPaymentParser;
-use StinWeatherApp\Services\Payment\Parser\XMLPaymentParser;
+use StinWeatherApp\Services\Payment\Parser\XmlPaymentParser;
 
 /**
  * Class PaymentTransformer
@@ -16,14 +16,14 @@ use StinWeatherApp\Services\Payment\Parser\XMLPaymentParser;
  */
 class PaymentTransformer {
 	private JsonPaymentParser $jsonPaymentParser;
-	private XMLPaymentParser $xmlPaymentParser;
+	private XmlPaymentParser $xmlPaymentParser;
 
 	/**
 	 * PaymentTransformer constructor.
 	 */
 	public function __construct() {
 		$this->jsonPaymentParser = new JsonPaymentParser();
-		$this->xmlPaymentParser = new XMLPaymentParser();
+		$this->xmlPaymentParser = new XmlPaymentParser();
 	}
 
 	/**

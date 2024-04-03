@@ -3,23 +3,22 @@
 namespace StinWeatherApp\Services\PremiumPaymentRequest;
 
 use Exception;
-use StinWeatherApp\Model\Buyable\Premium;
 use StinWeatherApp\Services\PremiumPaymentRequest\Parser\JsonPremiumPaymentParser;
 use StinWeatherApp\Services\PremiumPaymentRequest\Parser\XmlPremiumPaymentParser;
 
 /**
- * Class PremiumTransformer
+ * Class PremiumPaymentTransformer
  *
  * @author Daniel Adámek <daniel.adamek@tul.cz>
  * @description Transformer for premium data
  * @package StinWeatherApp\Services\Premium
  */
-class PremiumTransformer {
+class PremiumPaymentTransformer {
 	private JsonPremiumPaymentParser $jsonParser;
 	private XmlPremiumPaymentParser $xmlParser;
 
 	/**
-	 * PremiumTransformer constructor.
+	 * PremiumPaymentTransformer constructor.
 	 */
 	public function __construct() {
 		$this->jsonParser = new JsonPremiumPaymentParser();
@@ -31,10 +30,10 @@ class PremiumTransformer {
 	 *
 	 * @param string $input
 	 *
-	 * @return Premium
+	 * @return array<string, string>
 	 * @throws Exception
 	 */
-	public function transform(string $input): Premium {
+	public function transform(string $input): array {
 		if ($this->jsonParser->canParse($input)) {
 			return $this->transformJson($input);
 		} elseif ($this->xmlParser->canParse($input)) {
@@ -50,10 +49,10 @@ class PremiumTransformer {
 	 *
 	 * @param string $json
 	 *
-	 * @return Premium
+	 * @return array<string, string>
 	 * @throws Exception
 	 */
-	private function transformJson(string $json): Premium {
+	private function transformJson(string $json): array {
 		return $this->jsonParser->parse($json);
 	}
 
@@ -62,10 +61,10 @@ class PremiumTransformer {
 	 *
 	 * @param string $xml
 	 *
-	 * @return Premium
+	 * @return array<string, string>
 	 * @throws Exception
 	 */
-	private function transformXML(string $xml): Premium {
+	private function transformXML(string $xml): array {
 		return $this->xmlParser->parse($xml);
 	}
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace StinWeatherApp\Services\Premium;
+namespace StinWeatherApp\Services\PremiumPaymentRequest;
 
 use Exception;
 use StinWeatherApp\Model\Buyable\Premium;
-use StinWeatherApp\Services\Premium\Parser\JsonPremiumParser;
-use StinWeatherApp\Services\Premium\Parser\XmlPremiumParser;
+use StinWeatherApp\Services\PremiumPaymentRequest\Parser\JsonPremiumPaymentParser;
+use StinWeatherApp\Services\PremiumPaymentRequest\Parser\XmlPremiumPaymentParser;
 
 /**
  * Class PremiumTransformer
@@ -15,15 +15,15 @@ use StinWeatherApp\Services\Premium\Parser\XmlPremiumParser;
  * @package StinWeatherApp\Services\Premium
  */
 class PremiumTransformer {
-	private JsonPremiumParser $jsonParser;
-	private XMLPremiumParser $xmlParser;
+	private JsonPremiumPaymentParser $jsonParser;
+	private XmlPremiumPaymentParser $xmlParser;
 
 	/**
 	 * PremiumTransformer constructor.
 	 */
 	public function __construct() {
-		$this->jsonParser = new JsonPremiumParser();
-		$this->xmlParser = new XMLPremiumParser();
+		$this->jsonParser = new JsonPremiumPaymentParser();
+		$this->xmlParser = new XmlPremiumPaymentParser();
 	}
 
 	/**

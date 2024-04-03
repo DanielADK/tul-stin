@@ -79,7 +79,7 @@ class PaymentController extends AbstractController {
 			->setCurrency(Currency::fromString($array["currency"]))
 			->setType($paymentType)
 			->setDatetime(new DateTime())
-			->setStatus("NONE")
+			->setStatus("NONE");
 
 
 		if ($paymentType === PaymentType::CARD) {

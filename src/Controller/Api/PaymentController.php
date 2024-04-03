@@ -60,8 +60,7 @@ class PaymentController extends AbstractController {
 			/** @var array<string, string|array<string, string>> $array */
 			$array = $this->premiumPaymentProcessingHandler->getPremiumFromPayload($payload);
 			$premium = Premium::getById($array["premiumOption"]);
-			$cardArrayKey = PremiumPaymentParserInterface::cardKey;
-			$card = $this->extractCard($array[$cardArrayKey]);
+			$card = $this->extractCard($array[PremiumPaymentParserInterface::cardKey]);
 			$user = User::getUserByUsername($array["username"]);
 			$paymentType = PaymentType::tryFrom(strtoupper($array["paymentType"]));
 			$currency = Currency::fromString($array["currency"]);
@@ -86,20 +85,15 @@ class PaymentController extends AbstractController {
 				400);
 		}
 		$pb = (new PaymentBuilder())
-			->setCard($card)
 			->setAmount($premium->getPrice())
-			->setCurrency()
+			->setCurrency($currency)
 			->setType($paymentType)
 			->setDatetime(new DateTime())
 			->setStatus("NONE");
 
 
-		if ($paymentType === PaymentType::CARD) {
-			$pb->setCard(new Card(
-				$array[PremiumPaymentParserInterface::cardKey]["cardNumber"],
-				$array[PremiumPaymentParserInterface::cardKey]["cardExpiration"],
-				$array[PremiumPaymentParserInterface::cardKey]["cardCode"]
-			));
+		if ($paymentType === PaymentType::CARD && $card !== null) {
+			$pb->setCard($card);
 		}
 		$payment = $pb->build();
 
@@ -138,13 +132,18 @@ class PaymentController extends AbstractController {
 	 *
 	 * @param array<string, array<string, string>> $array
 	 *
-	 * @return Card
+	 * @return ?Card
 	 */
-	private function extractCard(array $array): Card {
+	private function extractCard(array $array): ?Card {
+		$cardKey = PremiumPaymentParserInterface::cardKey;
+		if (!array_key_exists($cardKey, $array)) {
+			return null;
+		}
+		$cardArray = $array[$cardKey];
 		return new Card(
-			$array["card"]["cardNumber"],
-			$array["card"]["cardExpiration"],
-			$array["card"]["cardCode"]
+			$cardArray["cardNumber"],
+			$cardArray["cardExpiration"],
+			$cardArray["cardCode"]
 		);
 	}
 

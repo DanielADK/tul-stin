@@ -62,21 +62,22 @@ class User implements PersistableInterface {
 		return $this->premiumUntil;
 	}
 
-	public static function getUserByUsername(string $username): User {
+	public static function getUserByUsername(string $username): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE username = ?", [$username]);
-		return self::parseFromArray($result);
+		return (!$result) ? null : self::parseFromArray($result);
 	}
 
 	/**
+	 * @param array<string, string> $array
 	 */
-	private static function parseFromArray(array $row): User {
-		$user = new User($row['id'], $row['username']);
-		if ($row['api_key'] !== null) {
-			$user->apiKey = $row['api_key'];
+	private static function parseFromArray(array $array): User {
+		$user = new User($array['id'], $array['username']);
+		if ($array['api_key'] !== null) {
+			$user->apiKey = $array['api_key'];
 		}
-		if ($row['premium_until'] !== null) {
+		if ($array['premium_until'] !== null) {
 			try {
-				$user->premiumUntil = new DateTime($row['premium_until']);
+				$user->premiumUntil = new DateTime($array['premium_until']);
 			} catch (Exception $e) {
 				$user->premiumUntil = null;
 			}
@@ -99,7 +100,7 @@ class User implements PersistableInterface {
 		if ($this->id) {
 			$data = array_merge($data, ['id' => $this->id]);
 			// Update the existing record
-			$result = Db::queryOne('UPDATE user 
+			$result = Db::execute('UPDATE user 
 				SET 
 				   username = :username,
 				   api_key = :api_key,
@@ -108,7 +109,7 @@ class User implements PersistableInterface {
 				$data);
 		} else {
 			// Insert a new record
-			$result = Db::queryOne('INSERT INTO user (username, api_key, premium_until) 
+			$result = Db::execute('INSERT INTO user (username, api_key, premium_until) 
 											VALUES (:username, :api_key, :premium_until)', $data);
 			if ($result) {
 				// Get the last insert id
@@ -133,11 +134,11 @@ class User implements PersistableInterface {
 	/**
 	 * @param int|string $id
 	 *
-	 * @return User
+	 * @return ?User
 	 */
 	#[\Override]
-	public static function getById(int|string $id): User {
-		return self::getUserByUsername($id);
+	public static function getById(int|string $id): ?User {
+		return self::getUserByUsername((string)$id);
 	}
 
 }

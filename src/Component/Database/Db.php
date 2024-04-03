@@ -97,4 +97,18 @@ abstract class Db {
 		$ret->execute($params);
 		return $ret->rowCount();
 	}
+
+	/**
+	 * Execute query and return succcess
+	 *
+	 * @param string                                   $query
+	 * @param array<string, int|float|string|DateTime> $params
+	 *
+	 * @return bool
+	 */
+	public static function execute(string $query, array $params = array()): bool {
+		$ret = self::$connection->prepare($query);
+		$params = self::processParameters($params);
+		return $ret->execute($params);
+	}
 }

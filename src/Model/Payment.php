@@ -191,7 +191,7 @@ class Payment implements PersistableInterface {
 		if ($this->id) {
 			$data = array_merge($data, ['id' => $this->id]);
 			// Update the existing record
-			$result = Db::queryOne('UPDATE payment 
+			$result = Db::execute('UPDATE payment 
 				SET 
                    amount = :amount,
                    currency = :currency,
@@ -202,9 +202,10 @@ class Payment implements PersistableInterface {
 				$data);
 		} else {
 			// Insert a new record
-			$result = Db::queryOne('INSERT INTO payment (amount, currency, datetime, type, status) 
-											VALUES (:amount, :currency, :datetime, :type, :status)', $data);
-			if ($result) {
+			$result = Db::execute('INSERT INTO payment (amount, currency, datetime, type, status) 
+											VALUES (:amount, :currency, :datetime, :type, :status)',
+				$data);
+			if ($result !== false) {
 				// Get the last insert id
 				$id = Db::queryCell('SELECT last_insert_rowid()');;
 				if (is_int($id)) {

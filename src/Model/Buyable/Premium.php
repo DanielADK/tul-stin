@@ -105,9 +105,9 @@ class Premium extends Buyable implements PersistableInterface {
 
 		if ($this->getId()) {
 			$data = array_merge($data, ['id' => $this->getId()]);
-			Db::queryOne('UPDATE premium SET name = :name, price = :price, duration = :duration, currency = :currency WHERE id = :id', $data);
+			Db::execute('UPDATE premium SET name = :name, price = :price, duration = :duration, currency = :currency WHERE id = :id', $data);
 		} else {
-			$result = Db::queryOne('INSERT INTO premium (name, price, duration, currency) VALUES (:name, :price, :duration, :currency)', $data);
+			$result = Db::execute('INSERT INTO premium (name, price, duration, currency) VALUES (:name, :price, :duration, :currency)', $data);
 			if ($result) {
 				$id = Db::queryCell('SELECT last_insert_rowid()');
 				if (is_int($id)) {

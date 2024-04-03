@@ -30,7 +30,7 @@ class PremiumPaymentTransformer {
 	 *
 	 * @param string $input
 	 *
-	 * @return array<string, string>
+	 * @return array<string, string|array<string, string>>
 	 * @throws Exception
 	 */
 	public function transform(string $input): array {

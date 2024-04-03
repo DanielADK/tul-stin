@@ -15,9 +15,9 @@ use StinWeatherApp\Model\Types\PaymentType;
 use StinWeatherApp\Model\User;
 use StinWeatherApp\Services\Payment\PaymentProcessingHandler;
 use StinWeatherApp\Services\Payment\PaymentServiceProcess;
-use StinWeatherApp\Services\Payment\PaymentTransformer;
 use StinWeatherApp\Services\Payment\Service\CardPaymentService;
 use StinWeatherApp\Services\Payment\Service\CashPaymentService;
+use StinWeatherApp\Services\PremiumPaymentRequest\Parser\PremiumPaymentParserInterface;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentProcessingHandler;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
 
@@ -57,13 +57,25 @@ class PaymentController extends AbstractController {
 
 		// Get validated associative array of payload
 		try {
+			/** @var array<string, string|array<string, string>> $array */
 			$array = $this->premiumPaymentProcessingHandler->getPremiumFromPayload($payload);
 			$premium = Premium::getById($array["premiumOption"]);
-			$card = $this->extractCard($array);
+			$cardArrayKey = PremiumPaymentParserInterface::cardKey;
+			$card = $this->extractCard($array[$cardArrayKey]);
 			$user = User::getUserByUsername($array["username"]);
 			$paymentType = PaymentType::tryFrom(strtoupper($array["paymentType"]));
+			$currency = Currency::fromString($array["currency"]);
+			if ($premium === null) {
+				throw new Exception("Invalid premium option");
+			}
+			if ($user === null) {
+				throw new Exception("Invalid user");
+			}
 			if ($paymentType === null) {
 				throw new Exception("Invalid payment type");
+			}
+			if ($currency === null) {
+				throw new Exception("Invalid currency");
 			}
 		} catch (Exception $e) {
 			// Premium processing failed with exception
@@ -76,7 +88,7 @@ class PaymentController extends AbstractController {
 		$pb = (new PaymentBuilder())
 			->setCard($card)
 			->setAmount($premium->getPrice())
-			->setCurrency(Currency::fromString($array["currency"]))
+			->setCurrency()
 			->setType($paymentType)
 			->setDatetime(new DateTime())
 			->setStatus("NONE");
@@ -84,9 +96,9 @@ class PaymentController extends AbstractController {
 
 		if ($paymentType === PaymentType::CARD) {
 			$pb->setCard(new Card(
-				$array["card"]["number"],
-				$array["card"]["expiration"],
-				$array["card"]["cvc"]
+				$array[PremiumPaymentParserInterface::cardKey]["cardNumber"],
+				$array[PremiumPaymentParserInterface::cardKey]["cardExpiration"],
+				$array[PremiumPaymentParserInterface::cardKey]["cardCode"]
 			));
 		}
 		$payment = $pb->build();

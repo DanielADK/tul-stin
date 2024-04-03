@@ -4,6 +4,7 @@ namespace StinWeatherApp\Model;
 
 use Datetime;
 use Exception;
+use Override;
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\PersistableInterface;
 use StinWeatherApp\Model\Types\Currency;
@@ -174,9 +175,10 @@ class Payment implements PersistableInterface {
 	}
 
 	/**
-	 * @description Saves the payment to the database
+	 * @inheritDoc
 	 * @throws Exception
 	 */
+	#[Override]
 	public function persist(): bool {    // Prepare the data for insertion or update
 		$data = [
 			'amount' => $this->getAmount(),

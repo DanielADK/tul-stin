@@ -10,12 +10,8 @@
                 <input class="form-control" type="text" id="username" name="username" required>
             </div>
             <div class="mb-3">
-                <label for="email">Email:</label>
-                <input class="form-control" type="email" id="email" name="email" required>
-            </div>
-            <div class="mb-3">
-                <label for="payment-type">Payment Type:</label>
-                <select class="form-select" id="payment-type" name="payment-type" required>
+                <label for="paymentType">Payment Type:</label>
+                <select class="form-select" id="paymentType" name="paymentType" required>
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                 </select>
@@ -30,12 +26,12 @@
                         <input class="form-control" type="text" id="cardNumber" name="cardNumber">
                     </div>
                     <div class="mb-3">
-                        <label for="expiryDate">Date of expiration:</label>
-                        <input class="form-control" type="text" id="expiryDate" name="expiryDate">
+                        <label for="cardExpiration">Date of expiration:</label>
+                        <input class="form-control" type="text" id="cardExpiration" name="cardExpiration">
                     </div>
                     <div class="mb-3">
-                        <label for="code">CVV/CVC:</label>
-                        <input class="form-control" type="text" id="code" name="code">
+                        <label for="cardCode">CVV/CVC:</label>
+                        <input class="form-control" type="text" id="cardCode" name="cardCode">
                     </div>
                 </div>
             </div>
@@ -55,19 +51,21 @@
         document.getElementById('paymentForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
-            var username = document.getElementById('username').value;
-            var email = document.getElementById('email').value;
-            var cardNumber = document.getElementById('cardNumber').value;
-            var expiryDate = document.getElementById('expiryDate').value;
-            var code = document.getElementById('code').value;
-            var premiumOption = document.getElementById('premium-option').value;
+            const username = document.getElementById('username').value;
+            const paymentType = document.getElementById('paymentType').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiration = document.getElementById('cardExpiration').value;
+            const cardCode = document.getElementById('cardCode').value;
+            const premiumOption = document.getElementById('premium-option').value;
 
-            var formData = {
+            const formData = {
                 username: username,
-                email: email,
-                cardNumber: cardNumber,
-                expiryDate: expiryDate,
-                code: code,
+                paymentType: paymentType,
+                card: {
+                    cardNumber: cardNumber,
+                    cardExpiration: cardExpiration,
+                    cardCode: cardCode,
+                },
                 premiumOption: premiumOption
             };
 
@@ -87,6 +85,9 @@
                     } else {
                         messageElement.className = 'alert alert-danger';
                         messageElement.textContent = 'Error occurred! Please try again or contact support!';
+                        response.text().then(function (text) {
+                            console.log(JSON.parse(text)["status"]);
+                        });
                     }
 
                     where.insertAdjacentElement('afterend', messageElement);

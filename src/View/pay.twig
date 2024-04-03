@@ -75,29 +75,28 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
-            })
-                .then(function (response) {
-                    var messageElement = document.createElement('div');
-                    var where = document.getElementsByTagName("h1")[0];
-                    if (response.status === 200) {
-                        messageElement.className = 'alert alert-success';
-                        messageElement.textContent = 'Payment was successful!';
-                    } else {
-                        messageElement.className = 'alert alert-danger';
-                        messageElement.textContent = 'Error occurred! Please try again or contact support!';
-                        response.text().then(function (text) {
-                            console.log(JSON.parse(text)["status"]);
-                        });
-                    }
+            }).then(function (response) {
+                let messageElement = document.createElement('div');
+                let where = document.getElementsByTagName("h1")[0];
+                if (response.status === 200) {
+                    messageElement.className = 'alert alert-success';
+                    messageElement.textContent = 'Payment was successful!';
+                } else {
+                    messageElement.className = 'alert alert-danger';
+                    messageElement.textContent = 'Error occurred! Please try again or contact support   ';
+                    response.text().then(function (text) {
+                        console.log(JSON.parse(text)["status"]);
+                        messageElement.textContent = JSON.parse(text)["status"];
+                    });
+                }
 
-                    where.insertAdjacentElement('afterend', messageElement);
-                })
-                .catch(function (error) {
-                    console.error('Error:', error);
-                });
+                where.insertAdjacentElement('afterend', messageElement);
+            }).catch(function (error) {
+                console.error('Error:', error);
+            });
         });
-        document.getElementById('payment-type').addEventListener('change', function (event) {
-            var cardPaymentElement = document.getElementById('card-payment');
+        document.getElementById('paymentType').addEventListener('change', function (event) {
+            let cardPaymentElement = document.getElementById('card-payment');
 
             if (event.target.value === 'card') {
                 cardPaymentElement.style.display = 'block';

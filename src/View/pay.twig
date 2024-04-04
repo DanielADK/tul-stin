@@ -102,7 +102,6 @@
                 }
                 response.text().then(function (text) {
                     let pElement = document.createElement('span');
-                    pElement.style.margin = '0 !important';
                     pElement.innerHTML = JSON.parse(text)["status"];
                     messageElement.appendChild(pElement);
                 });

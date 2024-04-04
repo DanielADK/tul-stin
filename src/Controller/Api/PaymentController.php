@@ -52,31 +52,43 @@ class PaymentController extends AbstractController {
 		// Get the raw body of the request
 		$payload = $this->request->getRawBody();
 
-		// Extract card, premium and user from payload
-
-
-		// Get validated associative array of payload
 		try {
+			// Parse payload to associative array
+
 			/** @var array<string, string|array<string, string>> $array */
 			$array = $this->premiumPaymentProcessingHandler->getPremiumFromPayload($payload);
+			error_log(json_encode($array));
+
+			// Extract Premium from array and check if it is valid
 			$premium = Premium::getById($array["premiumOption"]);
-			$card = $this->extractCard($array[PremiumPaymentParserInterface::cardKey]);
-			$user = User::getUserByUsername($array["username"]);
-			$paymentType = PaymentType::tryFrom(strtoupper($array["paymentType"]));
-			$currency = Currency::fromString($array["currency"]);
 			if ($premium === null) {
-				throw new Exception("Invalid premium option");
+				throw new Exception("Invalid premium option.");
 			}
-			if ($user === null) {
-				throw new Exception("Invalid user");
-			} elseif ($user->getPremiumUntil() !== null && $user->getPremiumUntil() > new DateTime("now")) {
-				throw new Exception("User already has premium");
-			}
+
+			// Extract payment type from array and check if it is valid
+			$paymentType = PaymentType::tryFrom(strtoupper($array["paymentType"]));
 			if ($paymentType === null) {
-				throw new Exception("Invalid payment type");
+				throw new Exception("Invalid payment type.");
 			}
+
+			// Extract card from array and check if it is valid
+			$card = $this->extractCard($array);
+			if ($card === null && $paymentType === PaymentType::CARD) {
+				throw new Exception("Invalid card information.");
+			}
+
+			// Extract user from array and check if it is valid and does not have premium
+			$user = User::getUserByUsername($array["username"]);
+			if ($user === null) {
+				throw new Exception("Invalid user.");
+			} elseif ($user->getPremiumUntil() !== null && $user->getPremiumUntil() > new DateTime("now")) {
+				throw new Exception("User already has premium.");
+			}
+
+			// Extract currency from array
+			$currency = Currency::fromString($array["currency"]);
 			if ($currency === null) {
-				throw new Exception("Invalid currency");
+				throw new Exception("Invalid currency.");
 			}
 		} catch (Exception $e) {
 			// Premium processing failed with exception
@@ -86,6 +98,8 @@ class PaymentController extends AbstractController {
 				]) ?: "Premium processing failed",
 				400);
 		}
+
+		// Build payment
 		$pb = (new PaymentBuilder())
 			->setAmount($premium->getPrice())
 			->setCurrency($currency)
@@ -93,16 +107,18 @@ class PaymentController extends AbstractController {
 			->setDatetime(new DateTime())
 			->setStatus("NONE");
 
-
+		// Set card if payment type is CARD
 		if ($paymentType === PaymentType::CARD && $card !== null) {
 			$pb->setCard($card);
 		}
 		$payment = $pb->build();
 
 		try {
+			// Process payment
 			$success = $this->paymentProcessingHandler->processPayment($payment);
-			// Payment processed successfully
+
 			if ($success) {
+				// Payment processed successfully
 				$premiumUntil = new DateTime("now");
 				$premiumUntil->setTimestamp($premiumUntil->getTimestamp() + $premium->getDuration());
 				$user->generateApiKey()
@@ -114,6 +130,7 @@ class PaymentController extends AbstractController {
 					]) ?: "Payment processed successfully",
 					200);
 			} else {
+				// Payment processing failed
 				$response = new Response(
 					json_encode([
 						"status" => "Payment processing failed"
@@ -138,13 +155,16 @@ class PaymentController extends AbstractController {
 	 * @param array<string, array<string, string>> $array
 	 *
 	 * @return ?Card
+	 * @throws Exception
 	 */
 	private function extractCard(array $array): ?Card {
 		$cardKey = PremiumPaymentParserInterface::cardKey;
+		// Check if card key is in array
 		if (!array_key_exists($cardKey, $array)) {
 			return null;
 		}
 		$cardArray = $array[$cardKey];
+
 		return new Card(
 			$cardArray["cardNumber"],
 			$cardArray["cardExpiration"],

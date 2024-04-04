@@ -2,6 +2,8 @@
 
 namespace StinWeatherApp\Model;
 
+use Exception;
+
 /**
  * Class Card
  *
@@ -22,8 +24,11 @@ class Card {
 	 * @param string $number
 	 * @param string $expiration
 	 * @param string $code
+	 *
+	 * @throws Exception
 	 */
 	public function __construct(string $number, string $expiration, string $code) {
+		error_log($number);
 		$this->setNumber($number);
 		$this->setExpiration($expiration);
 		$this->setCode($code);
@@ -33,9 +38,12 @@ class Card {
 		return $this->number;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function setNumber(string $number): Card {
-		if (!$this->validateNumber($number)) {
-			throw new \InvalidArgumentException('Invalid card number. Must be 16 digits.');
+		if (!self::validateNumber($number)) {
+			throw new Exception('Invalid card number. Must be 16 digits.');
 		}
 		$this->number = $number;
 		return $this;
@@ -45,9 +53,12 @@ class Card {
 		return $this->expiration;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function setExpiration(string $expiration): Card {
-		if (!$this->validateExpiration($expiration)) {
-			throw new \InvalidArgumentException('Invalid expiration date. Must be in format MM/YY.');
+		if (!self::validateExpiration($expiration)) {
+			throw new Exception('Invalid expiration date. Must be in format MM/YY.');
 		}
 		$this->expiration = $expiration;
 		return $this;
@@ -57,9 +68,12 @@ class Card {
 		return $this->code;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function setCode(string $code): Card {
-		if (!$this->validateCode($code)) {
-			throw new \InvalidArgumentException('Invalid code. Must be 3 digits.');
+		if (!self::validateCode($code)) {
+			throw new Exception('Invalid code. Must be 3 digits.');
 		}
 		$this->code = $code;
 		return $this;
@@ -72,7 +86,7 @@ class Card {
 	 *
 	 * @return bool
 	 */
-	public function validateNumber(string $number): bool {
+	public static function validateNumber(string $number): bool {
 		return (preg_match('/^\d{16}$/', $number) !== false);
 	}
 
@@ -83,7 +97,7 @@ class Card {
 	 *
 	 * @return bool
 	 */
-	public function validateExpiration(string $expiration): bool {
+	public static function validateExpiration(string $expiration): bool {
 		return (preg_match('/^\d{2}\/\d{2}$/', $expiration) !== false);
 	}
 
@@ -94,7 +108,7 @@ class Card {
 	 *
 	 * @return bool
 	 */
-	public function validateCode(string $code): bool {
+	public static function validateCode(string $code): bool {
 		return (preg_match('/^\d{3}$/', $code) !== false);
 	}
 

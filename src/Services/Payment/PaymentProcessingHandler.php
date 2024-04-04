@@ -7,7 +7,6 @@ use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Services\Payment\Service\CardPaymentService;
 use StinWeatherApp\Services\Payment\Service\CashPaymentService;
 use StinWeatherApp\Services\Payment\Service\PaymentServiceInterface;
-use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
 
 /**
  * Class PaymentProcessingHandler
@@ -19,7 +18,6 @@ use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
 class PaymentProcessingHandler {
 	/** @var array<string, PaymentServiceInterface> */
 	private array $paymentServices;
-	private PremiumPaymentTransformer $premiumTransformer;
 
 	/**
 	 * PaymentProcessingHandler constructor.

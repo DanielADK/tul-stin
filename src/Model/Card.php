@@ -57,6 +57,7 @@ class Card {
 	 * @throws Exception
 	 */
 	public function setExpiration(string $expiration): Card {
+		error_log("EXPIRACE" . json_encode(self::validateExpiration($expiration)));
 		if (!self::validateExpiration($expiration)) {
 			throw new Exception('Invalid expiration date. Must be in format MM/YY.');
 		}
@@ -87,7 +88,8 @@ class Card {
 	 * @return bool
 	 */
 	public static function validateNumber(string $number): bool {
-		return (preg_match('/^\d{16}$/', $number) !== false);
+		$result = preg_match('/^\d{16}$/', $number);
+		return $result !== false && $result !== 0;
 	}
 
 	/**
@@ -98,7 +100,8 @@ class Card {
 	 * @return bool
 	 */
 	public static function validateExpiration(string $expiration): bool {
-		return (preg_match('/^\d{2}\/\d{2}$/', $expiration) !== false);
+		$result = preg_match('/^\d{2}\/\d{2}$/', $expiration);
+		return $result !== false && $result !== 0;
 	}
 
 	/**
@@ -109,7 +112,8 @@ class Card {
 	 * @return bool
 	 */
 	public static function validateCode(string $code): bool {
-		return (preg_match('/^\d{3}$/', $code) !== false);
+		$result = preg_match('/^\d{3}$/', $code);
+		return $result !== false && $result !== 0;
 	}
 
 }

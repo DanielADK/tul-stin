@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -29,5 +29,8 @@ jobs:
       - name: Run PHPUnit Tests
         run: vendor/bin/phpunit tests
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: DanielADK/tul-stin

@@ -57,7 +57,6 @@ class Card {
 	 * @throws Exception
 	 */
 	public function setExpiration(string $expiration): Card {
-		error_log("EXPIRACE" . json_encode(self::validateExpiration($expiration)));
 		if (!self::validateExpiration($expiration)) {
 			throw new Exception('Invalid expiration date. Must be in format MM/YY.');
 		}

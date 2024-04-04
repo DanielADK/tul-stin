@@ -57,7 +57,6 @@ class PaymentController extends AbstractController {
 
 			/** @var array<string, string|array<string, string>> $array */
 			$array = $this->premiumPaymentProcessingHandler->getPremiumFromPayload($payload);
-			error_log(json_encode($array));
 
 			// Extract Premium from array and check if it is valid
 			$premium = Premium::getById($array["premiumOption"]);

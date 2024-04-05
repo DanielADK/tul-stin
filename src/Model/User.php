@@ -38,6 +38,9 @@ class User implements PersistableInterface {
 	}
 
 	public function generateApiKey(): User {
+		if ($this->apiKey !== null || $this->hasPremium()) {
+			return $this;
+		}
 		try {
 			$this->apiKey = hash("sha256", random_bytes(64));
 		} catch (RandomException $e) {
@@ -88,6 +91,20 @@ class User implements PersistableInterface {
 
 	public static function getUserByUsername(string $username): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE username = ?", [$username]);
+		$user = (!$result) ? null : self::parseFromArray($result);
+		// If non-null, validate the user's premium status
+		$user?->validatePremium();
+		return $user;
+	}
+
+	/**
+	 * @param int|string $id
+	 *
+	 * @return ?User
+	 */
+	#[\Override]
+	public static function getById(int|string $id): ?User {
+		$result = Db::queryOne("SELECT * FROM user WHERE id = ?", [$id]);
 		$user = (!$result) ? null : self::parseFromArray($result);
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();
@@ -156,16 +173,6 @@ class User implements PersistableInterface {
 			throw new Exception('Failed to save the user.');
 		}
 
-	}
-
-	/**
-	 * @param int|string $id
-	 *
-	 * @return ?User
-	 */
-	#[\Override]
-	public static function getById(int|string $id): ?User {
-		return self::getUserByUsername((string)$id);
 	}
 
 }

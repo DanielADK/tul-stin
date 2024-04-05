@@ -183,7 +183,7 @@ class Payment implements PersistableInterface {
 		$data = [
 			'amount' => $this->getAmount(),
 			'currency' => $this->getCurrency()->value,
-			'datetime' => $this->getDatetime()->format('Y-m-d H:i:s'),
+			'datetime' => $this->getDatetime()->format('Y-m-d\TH:i:s.uP'),
 			'type' => $this->getType()->value,
 			'status' => $this->getStatus(),
 		];
@@ -239,7 +239,7 @@ class Payment implements PersistableInterface {
 			$payment = new Payment(
 				$data['amount'],
 				Currency::from($data['currency']),
-				new DateTime($data['datetime']),
+				DateTime::createFromFormat('Y-m-d\TH:i:s.uP', $data['datetime']),
 				PaymentType::from($data['type']),
 				$data['status']
 			);

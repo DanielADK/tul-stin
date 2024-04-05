@@ -16,8 +16,12 @@ class CurrencyValidationHandler extends ValidationHandler {
 		if (!is_string($this->data["currency"])) {
 			throw new Exception('No information about currency detected.');
 		}
-		if (Currency::fromString($this->data["currency"]) === null) {
+		$currency = Currency::fromString($this->data["currency"]);
+		if ($currency === null) {
 			throw new Exception('Invalid currency.');
 		}
+
+		// Set Currency
+		$this->dto->setCurrency($currency);
 	}
 }

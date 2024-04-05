@@ -13,26 +13,32 @@ class CardValidationHandler extends ValidationHandler {
 	 */
 	#[\Override] protected function validate(): void {
 		$cardKey = PremiumPaymentParserInterface::cardKey;
-		if (!is_array($this->data[$cardKey])) {
+		$cardArr = $this->data[$cardKey];
+		if (!is_array($cardArr)) {
 			throw new Exception('No information about card detected.');
 		}
-		if (!is_string($this->data[$cardKey]["cardNumber"])) {
+		if (!is_string($cardArr["cardNumber"])) {
 			throw new Exception('No information about card number detected.');
 		}
-		if (!is_string($this->data[$cardKey]["cardExpiration"])) {
+		if (!is_string($cardArr["cardExpiration"])) {
 			throw new Exception('No information about card expiration date detected.');
 		}
-		if (!is_string($this->data[$cardKey]["cardCode"])) {
+		if (!is_string($cardArr["cardCode"])) {
 			throw new Exception('No information about card expiration date detected.');
 		}
-		if (Card::validateNumber($this->data[$cardKey]["cardNumber"]) === false) {
+		if (Card::validateNumber($cardArr["cardNumber"]) === false) {
 			throw new Exception('Invalid card number.');
 		}
-		if (Card::validateExpiration($this->data[$cardKey]["cardExpiration"]) === false) {
+		if (Card::validateExpiration($cardArr["cardExpiration"]) === false) {
 			throw new Exception('Invalid card expiration date.');
 		}
-		if (Card::validateCode($this->data[$cardKey]["cardCode"]) === false) {
+		if (Card::validateCode($cardArr["cardCode"]) === false) {
 			throw new Exception('Invalid card code.');
 		}
+
+		$card = new Card($cardArr["cardNumber"], $cardArr["cardExpiration"], $cardArr["cardCode"]);
+
+		// Set Card
+		$this->dto->setCard($card);
 	}
 }

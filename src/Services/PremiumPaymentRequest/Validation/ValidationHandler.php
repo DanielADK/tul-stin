@@ -3,27 +3,28 @@
 namespace StinWeatherApp\Services\PremiumPaymentRequest\Validation;
 
 use Exception;
-use StinWeatherApp\Services\PremiumPaymentRequest\Creator\PremiumPaymentRequestDTO;
+use StinWeatherApp\Component\Dto\PremiumPaymentRequestDto;
 
 /**
  * Abstract class ValidationHandler
  *
  * @description Abstract class for validation handlers
- * @package StinWeatherApp\Services\PremiumPaymentRequestDTO\Validator
+ * @package StinWeatherApp\Services\PremiumPaymentRequestDto\Validator
  */
 abstract class ValidationHandler {
 	protected ?ValidationHandler $nextHandler = null;
 	/** @var array<string, string|array<string, string>> */
 	protected array $data;
-	protected PremiumPaymentRequestDTO $premiumPaymentRequest;
+	protected PremiumPaymentRequestDto $dto;
 
 	/**
 	 * ValidationHandler constructor.
 	 *
 	 * @param array<string, string|array<string,string>> $data
 	 */
-	public function __construct(array $data) {
+	public function __construct(array $data, PremiumPaymentRequestDto $dto) {
 		$this->data = $data;
+		$this->dto = $dto;
 	}
 
 	/**

@@ -16,8 +16,12 @@ class PremiumValidationHandler extends ValidationHandler {
 		if (!is_string($this->data["premiumOption"])) {
 			throw new Exception('No information about premium detected.');
 		}
-		if (Premium::getById($this->data["premiumOption"]) === null) {
+		$premium = Premium::getById($this->data["premiumOption"]);
+
+		if ($premium === null) {
 			throw new Exception('Invalid premium option.');
 		}
+		// Set Premium
+		$this->dto->setPremium($premium);
 	}
 }

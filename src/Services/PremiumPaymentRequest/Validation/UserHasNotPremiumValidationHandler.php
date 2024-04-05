@@ -2,7 +2,6 @@
 
 namespace StinWeatherApp\Services\PremiumPaymentRequest\Validation;
 
-use DateTime;
 use Exception;
 use Override;
 use StinWeatherApp\Model\User;
@@ -21,8 +20,11 @@ class UserHasNotPremiumValidationHandler extends ValidationHandler {
 		if ($user === null) {
 			throw new Exception('Invalid user.');
 		}
-		if ($user->getPremiumUntil() !== null && $user->getPremiumUntil() > new DateTime()) {
+		if (!$user->hasPremium()) {
 			throw new Exception('User does not have premium.');
 		}
+
+		// Set user
+		$this->dto->setUser($user);
 	}
 }

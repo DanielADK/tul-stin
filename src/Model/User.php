@@ -15,8 +15,8 @@ class User implements PersistableInterface {
 	private ?DateTime $premiumUntil = null;
 
 	public function __construct(int $id, string $username) {
-		$this->id = $id;
-		$this->username = $username;
+		$this->setId($id);
+		$this->setUsername($username);
 	}
 
 	public function setId(int $id): User {
@@ -53,7 +53,12 @@ class User implements PersistableInterface {
 		return $this->apiKey;
 	}
 
-	public function setPremiumUntil(DateTime $premiumUntil): User {
+	private function setApiKey(?string $apiKey): User {
+		$this->apiKey = $apiKey;
+		return $this;
+	}
+
+	public function setPremiumUntil(?DateTime $premiumUntil): User {
 		$this->premiumUntil = $premiumUntil;
 		return $this;
 	}
@@ -62,24 +67,46 @@ class User implements PersistableInterface {
 		return $this->premiumUntil;
 	}
 
+	public function hasPremium(): bool {
+		return $this->getPremiumUntil() !== null && $this->getPremiumUntil() > new DateTime();
+	}
+
+	public function validatePremium(bool $persist = true): void {
+		if ($this->getPremiumUntil() < new DateTime()) {
+			$this->setPremiumUntil(null);
+			$this->setApiKey(null);
+			if (!$persist) {
+				return;
+			}
+			try {
+				$this->persist();
+			} catch (Exception $e) {
+				error_log($e->getMessage());
+			}
+		}
+	}
+
 	public static function getUserByUsername(string $username): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE username = ?", [$username]);
-		return (!$result) ? null : self::parseFromArray($result);
+		$user = (!$result) ? null : self::parseFromArray($result);
+		// If non-null, validate the user's premium status
+		$user?->validatePremium();
+		return $user;
 	}
 
 	/**
 	 * @param array<string, string> $array
 	 */
 	private static function parseFromArray(array $array): User {
-		$user = new User($array['id'], $array['username']);
+		$user = new User((int)$array['id'], $array['username']);
 		if ($array['api_key'] !== null) {
-			$user->apiKey = $array['api_key'];
+			$user->setApiKey($array['api_key']);
 		}
 		if ($array['premium_until'] !== null) {
 			try {
-				$user->premiumUntil = new DateTime($array['premium_until']);
+				$user->setPremiumUntil(new DateTime($array['premium_until']));
 			} catch (Exception $e) {
-				$user->premiumUntil = null;
+				$user->setPremiumUntil(null);
 			}
 		}
 		return $user;

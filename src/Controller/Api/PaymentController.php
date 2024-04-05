@@ -4,15 +4,14 @@ namespace StinWeatherApp\Controller\Api;
 
 use DateTime;
 use Exception;
+use StinWeatherApp\Component\Dto\ObjectCreator;
+use StinWeatherApp\Component\Dto\PremiumPaymentRequestDto;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
 use StinWeatherApp\Controller\AbstractController;
 use StinWeatherApp\Model\Builder\PaymentBuilder;
-use StinWeatherApp\Model\Buyable\Premium;
 use StinWeatherApp\Model\Card;
-use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
-use StinWeatherApp\Model\User;
 use StinWeatherApp\Services\Payment\PaymentProcessingHandler;
 use StinWeatherApp\Services\Payment\PaymentServiceProcess;
 use StinWeatherApp\Services\Payment\Service\CardPaymentService;
@@ -20,10 +19,17 @@ use StinWeatherApp\Services\Payment\Service\CashPaymentService;
 use StinWeatherApp\Services\PremiumPaymentRequest\Parser\PremiumPaymentParserInterface;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentProcessingHandler;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\CurrencyValidationHandler;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\ExistsUserValidationHandler;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\PaymentTypeValidationHandler;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\PremiumValidationHandler;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\UserHasNotPremiumValidationHandler;
+use StinWeatherApp\Services\PremiumPaymentRequest\Validation\ValidationHandler;
 
 class PaymentController extends AbstractController {
 	private PaymentProcessingHandler $paymentProcessingHandler;
 	private PremiumPaymentProcessingHandler $premiumPaymentProcessingHandler;
+	private ValidationHandler $validationHandler;
 
 	public function __construct(Request $request) {
 		parent::__construct($request);
@@ -58,43 +64,32 @@ class PaymentController extends AbstractController {
 			/** @var array<string, string|array<string, string>> $array */
 			$array = $this->premiumPaymentProcessingHandler->getPremiumFromPayload($payload);
 
-			// Extract Premium from array and check if it is valid
-			$premium = Premium::getById($array["premiumOption"]);
-			if ($premium === null) {
-				throw new Exception("Invalid premium option.");
-			}
+			// Create Data Transfer Object for Premium Payment Request
+			$dto = new PremiumPaymentRequestDto();
+			// Run validation chain. ORDER IS IMPORTANT
+			$this->validationHandler = new ExistsUserValidationHandler($array, $dto);
+			$this->validationHandler
+				->setNext(new UserHasNotPremiumValidationHandler($array, $dto))
+				->setNext(new PremiumValidationHandler($array, $dto))
+				->setNext(new PaymentTypeValidationHandler($array, $dto))
+				->setNext(new CurrencyValidationHandler($array, $dto));
+			// Validate
+			$this->validationHandler->handle();
 
-			// Extract payment type from array and check if it is valid
-			$paymentType = PaymentType::tryFrom(strtoupper($array["paymentType"]));
-			if ($paymentType === null) {
-				throw new Exception("Invalid payment type.");
-			}
+			// Create instances from validated data
+			$card = $dto->getCard();
+			$premium = $dto->getPremium();
+			$currency = $dto->getCurrency();
+			$paymentType = $dto->getPaymentType();
+			$user = $dto->getUser();
 
-			// Extract card from array and check if it is valid
-			$card = $this->extractCard($array);
-			if ($card === null && $paymentType === PaymentType::CARD) {
-				throw new Exception("Invalid card information.");
-			}
 
-			// Extract user from array and check if it is valid and does not have premium
-			$user = User::getUserByUsername($array["username"]);
-			if ($user === null) {
-				throw new Exception("Invalid user.");
-			} elseif ($user->getPremiumUntil() !== null && $user->getPremiumUntil() > new DateTime("now")) {
-				throw new Exception("User already has premium.");
-			}
-
-			// Extract currency from array
-			$currency = Currency::fromString($array["currency"]);
-			if ($currency === null) {
-				throw new Exception("Invalid currency.");
-			}
 		} catch (Exception $e) {
 			// Premium processing failed with exception
 			return new Response(
 				json_encode([
 					"status" => "Request processing failed. {$e->getMessage()}"
-				]) ?: "Premium processing failed",
+				]) ?: "Premium processing failed. Please contact administrator.",
 				400);
 		}
 

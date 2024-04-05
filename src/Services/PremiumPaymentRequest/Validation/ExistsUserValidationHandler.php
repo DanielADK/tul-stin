@@ -7,12 +7,12 @@ use Override;
 use StinWeatherApp\Model\User;
 
 /**
- * Class UserValidationHandler
+ * Class ExistsUserValidationHandler
  *
  * @description Class for user validation handler
- * @package StinWeatherApp\Services\PremiumPaymentRequestDTO\Validator
+ * @package StinWeatherApp\Services\PremiumPaymentRequestDto\Validator
  */
-class UserValidationHandler extends ValidationHandler {
+class ExistsUserValidationHandler extends ValidationHandler {
 
 	/**
 	 * @inheritDoc
@@ -26,5 +26,8 @@ class UserValidationHandler extends ValidationHandler {
 		if ($user === null) {
 			throw new Exception('Invalid user.');
 		}
+
+		// Set User
+		$this->dto->setUser($user);
 	}
 }

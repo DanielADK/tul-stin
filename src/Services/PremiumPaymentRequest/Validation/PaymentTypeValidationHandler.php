@@ -23,11 +23,14 @@ class PaymentTypeValidationHandler extends ValidationHandler {
 		// If Payment is by card, then we need to validate the card details
 		if ($type === PaymentType::CARD) {
 			$moveNext = $this->nextHandler;
-			$cardHandler = new CardValidationHandler($this->data);
+			$cardHandler = new CardValidationHandler($this->data, $this->dto);
 			$this->nextHandler = $cardHandler;
 			if ($moveNext !== null) {
 				$this->nextHandler->setNext($moveNext);
 			}
 		}
+
+		// Set PaymentType
+		$this->dto->setPaymentType($type);
 	}
 }

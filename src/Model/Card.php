@@ -28,7 +28,6 @@ class Card {
 	 * @throws Exception
 	 */
 	public function __construct(string $number, string $expiration, string $code) {
-		error_log($number);
 		$this->setNumber($number);
 		$this->setExpiration($expiration);
 		$this->setCode($code);

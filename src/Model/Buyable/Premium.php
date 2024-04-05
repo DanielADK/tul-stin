@@ -78,11 +78,15 @@ class Premium extends Buyable implements PersistableInterface {
 	 * @inheritDoc
 	 */
 	#[\Override]
-	public static function getById(int|string $id): ?self {
+	public static function getById(int|string $id): ?Premium {
 		$data = Db::queryOne('SELECT * FROM premium WHERE id = :id', ['id' => $id]);
 
 		if (is_array($data)) {
-			$premium = new Premium($data['name'], $data['price'], $data['duration'], Currency::fromString($data["currency"]));
+			$currency = Currency::fromString($data["currency"]);
+			if ($currency === null) {
+				return null;
+			}
+			$premium = new Premium($data['name'], $data['price'], $data['duration'], $currency);
 			$premium->setId($data["id"]);
 			return $premium;
 		} else {

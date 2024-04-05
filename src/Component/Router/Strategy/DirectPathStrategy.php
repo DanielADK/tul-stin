@@ -2,8 +2,6 @@
 
 namespace StinWeatherApp\Component\Router\Strategy;
 
-use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
-
 /**
  * Class DirectPathStrategy
  *

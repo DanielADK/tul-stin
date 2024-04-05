@@ -4,7 +4,6 @@ namespace StinWeatherApp\Controller\Api;
 
 use DateTime;
 use Exception;
-use StinWeatherApp\Component\Dto\ObjectCreator;
 use StinWeatherApp\Component\Dto\PremiumPaymentRequestDto;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;

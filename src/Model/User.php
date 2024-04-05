@@ -9,14 +9,14 @@ use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\PersistableInterface;
 
 class User implements PersistableInterface {
-	private int $id;
+	private ?int $id;
 	private string $username;
 	private ?string $apiKey = null;
 	private ?DateTime $premiumUntil = null;
 
-	public function __construct(int $id, string $username) {
-		$this->setId($id);
-		$this->setUsername($username);
+	public function __construct(?int $id, string $username) {
+		$this->id = $id;
+		$this->username = $username;
 	}
 
 	public function setId(int $id): User {
@@ -24,7 +24,7 @@ class User implements PersistableInterface {
 		return $this;
 	}
 
-	public function getId(): int {
+	public function getId(): ?int {
 		return $this->id;
 	}
 

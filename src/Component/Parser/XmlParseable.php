@@ -2,7 +2,7 @@
 
 namespace StinWeatherApp\Component\Parser;
 
-abstract class XmlParseable implements ParseableInterface {
+class XmlParseable implements ParseableInterface {
 
 	/**
 	 * @inheritDoc

@@ -3,6 +3,7 @@
 namespace StinWeatherApp\Model\Builder;
 
 use DateTime;
+use Exception;
 use InvalidArgumentException;
 use StinWeatherApp\Model\Card;
 use StinWeatherApp\Model\Payment;
@@ -104,14 +105,22 @@ class PaymentBuilder {
 	 * Build the Payment object.
 	 *
 	 * @return Payment
+	 * @throws Exception
 	 */
 	public function build(): Payment {
-		return new Payment(
+		$payment = new Payment(
 			$this->amount,
 			$this->currency,
 			$this->datetime,
 			$this->type,
 			$this->status
 		);
+
+		if ($this->card !== null && $this->type === PaymentType::CARD) {
+			$payment->setCard($this->card);
+		} elseif ($this->card === null && $this->type === PaymentType::CARD) {
+			throw new Exception('Card can be set only for CARD');
+		}
+		return $payment;
 	}
 }

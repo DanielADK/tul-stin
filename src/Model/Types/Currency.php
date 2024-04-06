@@ -6,23 +6,25 @@ enum Currency: string {
 	case CZK = "CZK";
 	case EUR = "EUR";
 
+	/**
+	 * @description Returns if the value is valid
+	 *
+	 * @param string $value
+	 *
+	 * @return boolean
+	 */
 	public static function isValid(string $value): bool {
-		foreach (self::cases() as $case) {
-			if ($value === $case->value) {
-				return true;
-			}
-		}
-
-		return false;
+		$values = array_flip(array_map(fn($case) => $case->name, self::cases()));
+		return isset($values[$value]);
 	}
 
+	/**
+	 * @description Returns the value from string
+	 * @param string $value
+	 * @return PaymentType|null
+	 */
 	public static function fromString(string $value): ?Currency {
 		$value = strtoupper($value);
-		foreach (self::cases() as $case) {
-			if ($value === $case->value) {
-				return $case;
-			}
-		}
-		return null;
+		return (self::isValid($value) ? self::from($value) : null);
 	}
 }

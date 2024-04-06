@@ -34,6 +34,35 @@ class CardTest extends TestCase {
 		$this->card->setExpiration('01/2025');
 	}
 
+	public function testDateValidExpliration(): void {
+		$currentYear = date('y');
+		$currentMonth = date('m');
+
+		$this->assertTrue(Card::validateExpirationDate($currentMonth . '/' . $currentYear));
+		$this->assertTrue(Card::validateExpirationDate($currentMonth . '/' . (int)$currentYear + 1));
+		$this->assertFalse(Card::validateExpirationDate($currentMonth . '/' . (int)$currentYear - 1));
+
+		$nextMonth = (int)$currentMonth + 1;
+		if ($nextMonth > 12) {
+			$currentMonth = 1;
+			$currentYear++;
+		} else {
+			$currentMonth = str_pad($nextMonth, 2, '0', STR_PAD_LEFT);
+		}
+		$this->assertTrue(Card::validateExpirationDate($currentMonth . '/' . $currentYear));
+
+		$currentYear = date('y');
+		$currentMonth = date('m');
+		$nextMonth = (int)$currentMonth - 1;
+		if ($nextMonth < 1) {
+			$currentMonth = 12;
+			$currentYear--;
+		} else {
+			$currentMonth = str_pad($nextMonth, 2, '0', STR_PAD_LEFT);
+		}
+		$this->assertFalse(Card::validateExpirationDate($currentMonth . '/' . $currentYear));
+	}
+
 	public function testSetCodeAndGetCode(): void {
 		$this->card->setCode('456');
 		$this->assertSame('456', $this->card->getCode());

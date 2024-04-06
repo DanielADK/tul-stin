@@ -2,8 +2,6 @@
 
 namespace StinWeatherApp\Component\Http;
 
-use StinWeatherApp\Component\Router\Router;
-
 class Response {
 	/** @var array<string> */
 	protected array $headers = array();

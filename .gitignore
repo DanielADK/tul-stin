@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/phpunit,phpstorm+all,composer
 # Edit at https://www.toptal.com/developers/gitignore?templates=phpunit,phpstorm+all,composer
 
+### CACHE ###
+/var/**/*
+
 ### Composer ###
 composer.phar
 /vendor/

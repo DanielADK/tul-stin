@@ -2,11 +2,11 @@
 
 namespace Component\Database;
 
+use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Database\Db;
-use PDO;
 use StinWeatherApp\Component\Database\InMemorySQLiteConnectionBuilder;
 use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
 
@@ -87,5 +87,20 @@ class DbQueryTest extends TestCase {
 	public function testQueryCell(): void {
 		$result = Db::queryCell("SELECT name FROM users WHERE email = 'john@example.com'");
 		$this->assertEquals('John Doe', $result);
+	}
+
+	#[Depends('testDelete')]
+	public function testExecute(): void {
+		$sql = "INSERT INTO users (name, email) VALUES (:name, :email)";
+		$params = ['name' => 'Execute Test', 'email' => 'execute@test.com'];
+
+		$result = Db::execute($sql, $params);
+
+		$this->assertTrue($result);
+
+		$user = Db::queryOne("SELECT * FROM users WHERE name = :name", ['name' => 'Execute Test']);
+		$this->assertNotNull($user);
+		$this->assertEquals('Execute Test', $user['name']);
+		$this->assertEquals('execute@test.com', $user['email']);
 	}
 }

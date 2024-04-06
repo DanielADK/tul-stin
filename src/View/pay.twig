@@ -1,0 +1,124 @@
+{% extends "template.twig" %}
+
+{% block content %}
+    <div class="col-lg-6 col-sm-12">
+        <h1>Pay for premium access!</h1>
+
+        <form class="g-3" id="paymentForm" method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="username">Username:</label>
+                <input class="form-control" type="text" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="paymentType">Payment Type:</label>
+                <select class="form-select" id="paymentType" name="paymentType" required>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                </select>
+            </div>
+            <div class="card mt-2 mb-3" id="card-payment" style="display: none">
+                <div class="card-header text-bg-primary">
+                    Please fill in your card details:
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="cardNumber">Card number:</label>
+                        <input class="form-control" type="text" id="cardNumber" name="cardNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardExpiration">Date of expiration:</label>
+                        <input class="form-control" type="text" id="cardExpiration" name="cardExpiration">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardCode">CVV/CVC:</label>
+                        <input class="form-control" type="text" id="cardCode" name="cardCode">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="currency">Currency:</label>
+                <select class="form-select" id="currency" name="currency" required>
+                    <option value="czk">CZK</option>
+                    <option value="eur">EUR</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="premiumOption">Type of premium:</label>
+                <select class="form-select" id="premiumOption" name="premiumOption" required>
+                    {% for premium in premiumList %}
+                        <option value="{{ premium.id }}">{{ premium.name }}
+                            ({{ premium.price }} {{ premium.currencyString }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const paymentType = document.getElementById('paymentType').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiration = document.getElementById('cardExpiration').value;
+            const cardCode = document.getElementById('cardCode').value;
+            const currency = document.getElementById('currency').value;
+            const premiumOption = document.getElementById('premiumOption').value;
+
+            const formData = {
+                username: username,
+                paymentType: paymentType,
+                card: {
+                    cardNumber: cardNumber,
+                    cardExpiration: cardExpiration,
+                    cardCode: cardCode,
+                },
+                currency: currency,
+                premiumOption: premiumOption
+            };
+
+            fetch('/api/payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(function (response) {
+                // Remove old message if exists
+                let oldMessageElement = document.getElementById('message');
+                if (oldMessageElement) {
+                    oldMessageElement.remove();
+                }
+
+                let messageElement = document.createElement('div');
+                messageElement.id = 'message'; // Add id to the message element
+                let where = document.getElementsByTagName("h1")[0];
+                if (response.status === 200) {
+                    messageElement.className = 'alert alert-success';
+                } else {
+                    messageElement.className = 'alert alert-danger';
+                }
+                response.text().then(function (text) {
+                    let pElement = document.createElement('span');
+                    pElement.innerHTML = JSON.parse(text)["status"];
+                    messageElement.appendChild(pElement);
+                });
+
+                where.insertAdjacentElement('afterend', messageElement);
+            }).catch(function (error) {
+                console.error('Error:', error);
+            });
+        });
+        document.getElementById('paymentType').addEventListener('change', function (event) {
+            let cardPaymentElement = document.getElementById('card-payment');
+
+            if (event.target.value === 'card') {
+                cardPaymentElement.style.display = 'block';
+            } else {
+                cardPaymentElement.style.display = 'none';
+            }
+        });
+    </script>
+{% endblock %}

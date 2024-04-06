@@ -20,6 +20,8 @@ class Request {
 	private array $post;
 	/** @var array<string, string> */
 	private array $get;
+	/** @var string $rawBody */
+	private string $rawBody;
 
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
@@ -28,6 +30,7 @@ class Request {
 		$this->body = $this->method === 'POST' ? $_POST : $_GET;
 		$this->post = $_POST;
 		$this->get = $_GET;
+		$this->rawBody = file_get_contents('php://input');
 
 		// Parse headers
 		$this->headers = array();
@@ -74,9 +77,12 @@ class Request {
 	 *
 	 * @param string $index
 	 *
-	 * @return array<string, string>|null
+	 * @return array<string, string>|string|null
 	 */
-	public function getPost(string $index): ?string {
+	public function getPost(string $index = "ALL"): array|string|null {
+		if ($index === "ALL") {
+			return $this->post;
+		}
 		return $this->post[$index] ?? null;
 	}
 
@@ -85,9 +91,21 @@ class Request {
 	 *
 	 * @param string $index
 	 *
-	 * @return array<string, string>|null
+	 * @return array<string, string>|string|null
 	 */
-	public function getGet(string $index): ?string {
+	public function getGet(string $index = "ALL"): array|string|null {
+		if ($index === "ALL") {
+			return $this->get;
+		}
 		return $this->get[$index] ?? null;
+	}
+
+	/**
+	 * @description Returns the raw body of the request
+	 *
+	 * @return string
+	 */
+	public function getRawBody(): string {
+		return $this->rawBody;
 	}
 }

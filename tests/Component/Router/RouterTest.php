@@ -129,12 +129,14 @@ class RouterTest extends TestCase {
 		$start = microtime(true);
 		foreach ($paths as $path) {
 			$route = $this->router->getRouteByPath($path);
-			$this->assertNotNull($route);
+			if ($route === null) {
+				$this->fail("Route not found for path: $path");
+			}
 		}
 		$end = microtime(true);
 
 		// Print the time to search for all routes
 		$time = $end - $start;
-		$this->assertLessThanOrEqual(10, $time);
+		$this->assertLessThanOrEqual(2, $time);
 	}
 }

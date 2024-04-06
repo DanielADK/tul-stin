@@ -6,6 +6,7 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
+use StinWeatherApp\Model\Card;
 use StinWeatherApp\Model\Payment;
 use StinWeatherApp\Model\Types\Currency;
 use StinWeatherApp\Model\Types\PaymentType;
@@ -86,5 +87,30 @@ class PaymentTest extends TestCase {
 		$this->assertEquals($this->payment->getDatetime(), $persistedPayment->getDatetime());
 		$this->assertEquals($this->payment->getType(), $persistedPayment->getType());
 		$this->assertEquals($this->payment->getStatus(), $persistedPayment->getStatus());
+	}
+
+	public function testSetCardAndGetCard(): void {
+		$card = new Card('1234567812345678', '12/24', '123');
+		$this->payment->setCard($card);
+
+		$this->assertSame($card, $this->payment->getCard());
+	}
+
+	public function testPersist(): void {
+		$dbMock = $this->createMock(Db::class);
+		$dbMock->method('execute')->willReturn(true);
+		$dbMock->method('queryCell')->willReturn(1);
+
+		$this->payment->setId(1);
+		$this->payment->persist();
+
+		$this->assertTrue($this->payment->persist());
+	}
+
+	public function testGetByIdInvalidId(): void {
+		$dbMock = $this->createMock(Db::class);
+		$dbMock->method('queryOne')->willReturn(null);
+
+		$this->assertNull(Payment::getById('invalid_id'));
 	}
 }

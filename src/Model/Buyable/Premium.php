@@ -103,11 +103,11 @@ class Premium extends Buyable implements PersistableInterface {
 		$data = [
 			'name' => $this->getName(),
 			'price' => $this->getPrice(),
-			'duration' => $this->duration,
+			'duration' => $this->getDuration(),
 			'currency' => $this->getCurrency()->value
 		];
 
-		if ($this->getId()) {
+		if (is_int($this->getId())) {
 			$data = array_merge($data, ['id' => $this->getId()]);
 			Db::execute('UPDATE premium SET name = :name, price = :price, duration = :duration, currency = :currency WHERE id = :id', $data);
 		} else {

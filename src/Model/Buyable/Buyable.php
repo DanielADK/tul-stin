@@ -12,12 +12,12 @@ use StinWeatherApp\Model\Types\Currency;
  * @package StinWeatherApp\Model\Buyable
  */
 abstract class Buyable {
-	private int $id;
+	private ?int $id = null;
 	private string $name;
 	private float $price;
 	private Currency $currency;
 
-	public function getId(): int {
+	public function getId(): ?int {
 		return $this->id;
 	}
 

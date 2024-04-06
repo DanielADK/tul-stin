@@ -103,6 +103,38 @@ class Card {
 	}
 
 	/**
+	 * @description Validates the expiration date
+	 *
+	 * @param string $expiration
+	 *
+	 * @return bool
+	 */
+	public static function validateExpirationDate(string $expiration): bool {
+		if (!self::validateExpiration($expiration)) {
+			return false;
+		}
+
+		[$month, $year] = explode('/', $expiration);
+
+		// Check if the month is between 1 and 12
+		if ($month < 1 || $month > 12) {
+			return false;
+		}
+
+		// Get the current year and month
+		$currentYear = date('y');
+		$currentMonth = date('m');
+
+		// Check if the year is the same or higher than the current year
+		// and if it's the same year, the month should be the same or higher than the current month
+		if ($year < $currentYear || ($year == $currentYear && $month < $currentMonth)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * @description Validates the code
 	 *
 	 * @param string $code

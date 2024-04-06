@@ -32,6 +32,9 @@ class CardValidationHandler extends ValidationHandler {
 		if (Card::validateExpiration($cardArr["cardExpiration"]) === false) {
 			throw new Exception('Invalid card expiration date.');
 		}
+		if (Card::validateExpirationDate($cardArr["cardExpiration"]) === false) {
+			throw new Exception('Card has expired or expiration date is invalid.');
+		}
 		if (Card::validateCode($cardArr["cardCode"]) === false) {
 			throw new Exception('Invalid card code.');
 		}

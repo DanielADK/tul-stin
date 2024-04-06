@@ -20,8 +20,8 @@ class UserHasNotPremiumValidationHandler extends ValidationHandler {
 		if ($user === null) {
 			throw new Exception('Invalid user.');
 		}
-		if (!$user->hasPremium()) {
-			throw new Exception('User does not have premium.');
+		if ($user->hasPremium()) {
+			throw new Exception('User has premium.');
 		}
 
 		// Set user

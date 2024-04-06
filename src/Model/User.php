@@ -37,16 +37,25 @@ class User implements PersistableInterface {
 		return $this->username;
 	}
 
+	/**
+	 * @param int $length
+	 *
+	 * @return string
+	 * @throws RandomException
+	 */
+	public function generateRandomBytes(int $length): string {
+		return random_bytes($length);
+	}
+
 	public function generateApiKey(): User {
 		if ($this->apiKey !== null || $this->hasPremium()) {
 			return $this;
 		}
 		try {
-			$this->apiKey = hash("sha256", random_bytes(64));
+			$this->apiKey = hash("sha256", $this->generateRandomBytes(32));
 		} catch (RandomException $e) {
 			$this->apiKey = hash("sha256",
-				$this->id
-				. $this->username
+				$this->username
 				. (new DateTime())->format("Y-m-d H:i:s"));
 		}
 		return $this;

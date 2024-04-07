@@ -26,7 +26,7 @@ abstract class AbstractController {
 		// Twig init
 		$loader = new FilesystemLoader(__DIR__ . "/../View");
 		$this->twig = new Environment($loader, [
-			'cache' => __DIR__ . "/../../var/cache",
+			'cache' => __DIR__ . "/../../cache",
 		]);
 
 		$this->request = $request;
@@ -38,20 +38,19 @@ abstract class AbstractController {
 	 * @param array<string, mixed> $data
 	 *
 	 * @return Response
-	 * @throws Exception
 	 */
 	protected function render(string $viewName, array $data = array()): Response {
 		try {
 			$content = $this->twig->render("{$viewName}.twig", $data);
 			return (new Response($content, 200))->setHTML();
 		} catch (LoaderError $e) {
-			throw new Exception("Template {$viewName} not found", 500);
+			return new Response("Template {$viewName} not found", 500);
 		} catch (RuntimeError $e) {
-			throw new Exception("Template {$viewName} runtime error", 500);
+			return new Response("Template {$viewName} runtime error {$e}", 500);
 		} catch (SyntaxError $e) {
-			throw new Exception("Template {$viewName} syntax error", 500);
+			return new Response("Template {$viewName} syntax error {$e}", 500);
 		} catch (Exception $e) {
-			throw new Exception("Template {$viewName} rendering error", 500);
+			return new Response("Template {$viewName} rendering error {$e}", 500);
 		}
 	}
 }

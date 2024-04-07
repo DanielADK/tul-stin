@@ -6,11 +6,17 @@ on:
       - dev
       - tests
       - features/**
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
+  phpunit:
     name: PHPUnit Tests & Coverage
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.result.outputs.result }}
+
 
     steps:
       - name: Checkout code

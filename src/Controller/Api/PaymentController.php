@@ -7,15 +7,14 @@ use Exception;
 use StinWeatherApp\Component\Dto\PremiumPaymentRequestDto;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\AbstractController;
 use StinWeatherApp\Model\Builder\PaymentBuilder;
-use StinWeatherApp\Model\Card;
 use StinWeatherApp\Model\Types\PaymentType;
 use StinWeatherApp\Services\Payment\PaymentProcessingHandler;
 use StinWeatherApp\Services\Payment\PaymentServiceProcess;
 use StinWeatherApp\Services\Payment\Service\CardPaymentService;
 use StinWeatherApp\Services\Payment\Service\CashPaymentService;
-use StinWeatherApp\Services\PremiumPaymentRequest\Parser\PremiumPaymentParserInterface;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentProcessingHandler;
 use StinWeatherApp\Services\PremiumPaymentRequest\PremiumPaymentTransformer;
 use StinWeatherApp\Services\PremiumPaymentRequest\Validation\CurrencyValidationHandler;
@@ -142,27 +141,14 @@ class PaymentController extends AbstractController {
 		return $response;
 	}
 
-	/**
-	 * @description Extracts card from array
-	 *
-	 * @param array<string, array<string, string>> $array
-	 *
-	 * @return ?Card
-	 * @throws Exception
-	 */
-	private function extractCard(array $array): ?Card {
-		$cardKey = PremiumPaymentParserInterface::cardKey;
-		// Check if card key is in array
-		if (!array_key_exists($cardKey, $array)) {
-			return null;
-		}
-		$cardArray = $array[$cardKey];
-
-		return new Card(
-			$cardArray["cardNumber"],
-			$cardArray["cardExpiration"],
-			$cardArray["cardCode"]
-		);
+	public function options(): Response {
+		$response = new Response("", 200);
+		/** @var Router $GLOBALS ['router']; */
+		$methods = $GLOBALS['router']->getAllowedMethods($this->request->getPath());
+		$methods = array_map(fn($method) => $method->value, $methods);
+		error_log("Allowed methods: " . implode(", ", $methods));
+		$response->setHeader("Access-Control-Allow-Methods: " . implode(", ", $methods));
+		return $response;
 	}
 
 }

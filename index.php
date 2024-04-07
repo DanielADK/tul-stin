@@ -9,7 +9,7 @@ use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
 
 // Init router
-$router = new Router();
+$router = $GLOBALS['router'] = new Router();
 
 // Connect
 try {
@@ -22,16 +22,12 @@ try {
 }
 
 // Load routes
-/** @var array<string, Route> $routes */
+/** @var array<Route> $routes */
 $routes = require __DIR__ . '/routes-config.php';
 
 // Add routes to the router
-foreach ($routes as $path => $route) {
-	if ($path === 'notFound') {
-		$router->setNotFound($route);
-	} else {
-		$router->addRoute($path, $route->getController(), $route->getControllerMethod(), $route->getHttpMethod());
-	}
+foreach ($routes as $route) {
+	$router->addRoute($route->getPath(), $route->getController(), $route->getControllerMethod(), $route->getHttpMethod());
 }
 
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

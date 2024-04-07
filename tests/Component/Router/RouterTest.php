@@ -57,8 +57,12 @@ class RouterTest extends TestCase {
 		$this->router->addRoute('/test2', TestController::class, 'testMethod', Method::GET);
 
 		$routes = $this->router->getRoutes();
+		$count = 0;
+		foreach ($routes as $method => $route) {
+			$count += count($route);
+		}
 
-		$this->assertCount(3, $routes); // 2 routes added + 1 notFoundRoute
+		$this->assertSame(3, $count); // 2 routes added + 1 notFoundRoute
 	}
 
 	public function testGetRouteByPath(): void {

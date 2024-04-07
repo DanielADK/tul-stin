@@ -6,7 +6,6 @@ use Exception;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
-use StinWeatherApp\Component\Router\Strategy\ArrayPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 use StinWeatherApp\Component\Router\Strategy\PathValueExtractor;
@@ -21,7 +20,7 @@ use StinWeatherApp\Controller\NotFoundController;
  */
 class Router {
 
-	/** @var array<string, Route> $routes The routes that the router will handle. Index is path, value is Route object. */
+	/** @var array<string, array<string, Route>> $routes Array of Methods -> array path-route */
 	private array $routes = array();
 	/** * @var Route $notFoundRoute The route that will be called when no other route matches the request. */
 	private Route $notFoundRoute;
@@ -30,6 +29,7 @@ class Router {
 	 * Router constructor.
 	 */
 	public function __construct() {
+		// Set the default not found route.
 		$this->notFoundRoute = new Route("/not-found", NotFoundController::class, "index", Method::GET);
 		$this->addRoute($this->notFoundRoute->getPath(), $this->notFoundRoute->getController(), $this->notFoundRoute->getControllerMethod(), $this->notFoundRoute->getHttpMethod());
 	}
@@ -46,7 +46,7 @@ class Router {
 	 * @return Router
 	 */
 	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = new DirectPathStrategy()): Router {
-		$this->routes[$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
+		$this->routes[$httpMethod->value][$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
 
 		return $this;
 	}
@@ -57,15 +57,17 @@ class Router {
 	 * @param string $path The path to match.
 	 * @return Route|null The matching route, or null if no route matches the path.
 	 */
-	public function getRouteByPath(string $path): ?Route {
+	public function getRouteByPath(string $path, Method $method = Method::GET): ?Route {
 		// Optimization: O(1) search for the route that matches the exact path.
-		if (isset($this->routes[$path]) && $this->routes[$path] instanceof Route) {
-			return $this->routes[$path];
+		if (isset($this->routes[$method->value][$path]) && $this->routes[$method->value][$path] instanceof Route) {
+			return $this->routes[$method->value][$path];
 		}
 		// Generic search
-		foreach ($this->routes as $route) {
-			if ($route->matches($path)) {
-				return $route;
+		foreach ($this->routes as $methods) {
+			foreach ($methods as $route) {
+				if ($route->matches($path)) {
+					return $route;
+				}
 			}
 		}
 		return null;
@@ -73,7 +75,8 @@ class Router {
 
 	/**
 	 * Returns array of all routes
-	 * @return array<Route>
+	 *
+	 * @return array<string, array<string, Route>>
 	 */
 	public function getRoutes(): array {
 		return $this->routes;
@@ -86,7 +89,7 @@ class Router {
 	 */
 	public function setNotFound(Route $route): void {
 		$this->notFoundRoute = $route;
-		$this->routes[$this->notFoundRoute->getPath()] = $this->notFoundRoute;
+		$this->routes[$this->notFoundRoute->getHttpMethod()->value][$this->notFoundRoute->getPath()] = $this->notFoundRoute;
 	}
 
 	/**
@@ -110,7 +113,7 @@ class Router {
 			$request = new Request();
 
 			// Find by index
-			$route = $this->getRouteByPath($requestUri);
+			$route = $this->getRouteByPath($requestUri, $requestMethod);
 			if ($route instanceof Route) {
 				// If the route matches the request, call the controller method and return the response.
 				if ($route->matches($requestUri) && $route->getHttpMethod() === $requestMethod) {
@@ -166,6 +169,27 @@ class Router {
 	 */
 	public function isMethodSupported(Method $method): bool {
 		return in_array($method, Method::cases());
+	}
+
+	/**
+	 * Get all allowed methods for a given path.
+	 *
+	 * @param string $path The path to check.
+	 *
+	 * @return array<Method> An array of allowed methods.
+	 */
+	public function getAllowedMethods(string $path): array {
+		$allowedMethods = [];
+
+		foreach ($this->routes as $methods) {
+			foreach ($methods as $route) {
+				if ($route->matches($path)) {
+					$allowedMethods[] = $route->getHttpMethod();
+				}
+			}
+		}
+
+		return $allowedMethods;
 	}
 
 }

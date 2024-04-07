@@ -1,1 +1,35 @@
-{{ helloworld }}
+{% extends "template.twig" %}
+
+{% block content %}
+    <h1>WeatherApp</h1>
+    <div class="row">
+        <div class="col-lg-6 col-sm-12">
+            <div class="card" style="height:100%">
+                <div class="card-header bg-primary text-white">
+                    <h2>Free Tier</h2>
+                </div>
+                <div class="card-body">
+                    <p>Naše Free Tier služba nabízí:</p>
+                    <ul>
+                        <li>Možnost zjistit aktuální informace o počasí v zadané poloze.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <div class="card" style="height:100%">
+                <div class="card-header bg-warning">
+                    <h2>Premium Tier</h2>
+                </div>
+                <div class="card-body">
+                    <p>Naše Premium služba nabízí vše, co nabízí Free Tier. Navíc:</p>
+                    <ul>
+                        <li>Možnost sledovat počasí v čase +- měsíc</li>
+                    </ul>
+                    <p><strong>Poznámka:</strong> Cena za Premium službu musí být vyšší než {{ required_price }}.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "component/weather.twig" %}
+{% endblock %}

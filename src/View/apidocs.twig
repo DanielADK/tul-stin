@@ -1,0 +1,55 @@
+{% extends "template.twig" %}
+
+{% block content %}
+    <h1>API Documentation</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card my-3">
+                    <div class="card-header bg-success text-white">
+                        <h2>Endpoint: /api/weather</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>Method: <span class="badge text-bg-primary">GET</span></h3>
+                        <p>This endpoint returns the current weather information for a given location.</p>
+                        <h4>Parameters:</h4>
+                        <ul>
+                            <li><strong>location</strong>: The location for which to retrieve the weather information.
+                            </li>
+                        </ul>
+                        <h4>Example:</h4>
+                        <code>/api/weather?location=Prague</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card my-3">
+                    <div class="card-header bg-success text-white">
+                        <h2>Endpoint: /api/payment</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>Method: <span class="badge text-bg-warning">POST</span></h3>
+                        <p>This endpoint processes a payment for the premium tier.</p>
+                        <h4>Parameters:</h4>
+                        <ul>
+                            <li><strong>amount</strong>: The amount to be paid.</li>
+                            <li><strong>currency</strong>: The currency in which the payment is made.</li>
+                        </ul>
+                        <h4>Example:</h4>
+                        <code>
+                            {
+                            "amount": 1000,
+                            "currency": "CZK"
+                            }
+                        </code>
+                        <hr>
+                        <h3>Method: <span class="badge text-bg-danger">OPTIONS</span></h3>
+                        <p>Find out which request methods a server supports.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

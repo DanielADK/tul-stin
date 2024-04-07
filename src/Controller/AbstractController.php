@@ -26,7 +26,6 @@ abstract class AbstractController {
 		// Twig init
 		$loader = new FilesystemLoader(__DIR__ . "/../View");
 		$this->twig = new Environment($loader, [
-			'cache' => __DIR__ . "/../../cache",
 		]);
 
 		$this->request = $request;

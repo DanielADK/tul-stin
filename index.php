@@ -7,10 +7,6 @@ use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
-use StinWeatherApp\Controller\Api\PaymentController as ApiPaymentController;
-use StinWeatherApp\Controller\HomeController;
-use StinWeatherApp\Controller\NotFoundController;
-use StinWeatherApp\Controller\PayController;
 
 // Init router
 $router = new Router();
@@ -25,12 +21,17 @@ try {
 	echo "Database connection failed: " . $e->getMessage();
 }
 
-// Routes
-$router->addRoute("/", HomeController::class);
-$router->setNotFound(new Route("/not-found", NotFoundController::class, "index"));
-$router->addRoute("/pay", PayController::class, "paymentForm", Method::GET);
-$router->addRoute("/time", HomeController::class, "time");
+// Load routes
+/** @var array<string, Route> $routes */
+$routes = require __DIR__ . '/routes-config.php';
 
-// API Routes
-$router->addRoute("/api/payment", ApiPaymentController::class, "processPayment", Method::POST);
+// Add routes to the router
+foreach ($routes as $path => $route) {
+	if ($path === 'notFound') {
+		$router->setNotFound($route);
+	} else {
+		$router->addRoute($path, $route->getController(), $route->getControllerMethod(), $route->getHttpMethod());
+	}
+}
+
 $router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));

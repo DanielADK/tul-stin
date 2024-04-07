@@ -45,7 +45,10 @@ class Router {
 	 *
 	 * @return Router
 	 */
-	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, PathStrategyInterface $strategy = new DirectPathStrategy()): Router {
+	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, ?PathStrategyInterface $strategy = null): Router {
+		if (!$strategy) {
+			$strategy = new DirectPathStrategy();
+		}
 		$this->routes[$httpMethod->value][$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
 
 		return $this;

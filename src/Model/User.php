@@ -181,7 +181,19 @@ class User implements PersistableInterface {
 		} else {
 			throw new Exception('Failed to save the user.');
 		}
+	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function delete(): void {
+		if (!$this->id) {
+			throw new Exception('Cannot delete user without id.');
+		}
+		$result = Db::execute('DELETE FROM user WHERE id = :id', [":id" => $this->id]);
+		if (!$result) {
+			throw new Exception('Failed to delete the user.');
+		}
 	}
 
 }

@@ -38,7 +38,7 @@ final class Route {
 	 * @param Method                     $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 * @param PathStrategyInterface|null $pathStrategy The strategy for matching the path
 	 */
-	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod = Method::GET, PathStrategyInterface $pathStrategy = null) {
+	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod = Method::GET, ?PathStrategyInterface $pathStrategy = null) {
 		if (!class_exists($controller)) {
 			throw new \InvalidArgumentException("Controller class does not exist: $controller");
 		}
@@ -128,6 +128,27 @@ final class Route {
 	 */
 	public function getHttpMethod(): Method {
 		return $this->httpMethod;
+	}
+
+	/**
+	 * Set the strategy for matching the path
+	 *
+	 * @param PathStrategyInterface $strategy The strategy for matching the path
+	 *
+	 * @return Route The current route instance
+	 */
+	public function setStrategy(PathStrategyInterface $strategy): Route {
+		$this->strategy = $strategy;
+		return $this;
+	}
+
+	/**
+	 * Get the strategy for matching the path
+	 *
+	 * @return PathStrategyInterface The strategy for matching the path
+	 */
+	public function getStrategy(): PathStrategyInterface {
+		return $this->strategy;
 	}
 
 	/**

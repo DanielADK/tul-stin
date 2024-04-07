@@ -24,7 +24,7 @@ jobs:
           
       - name: Connect, Checkout, Pull
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && git checkout main && git pull && exit"
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && git checkout main && git pull && composer install --no-dev && exit"
           
       - name: Clean keys
         run: rm -rf ~/.ssh

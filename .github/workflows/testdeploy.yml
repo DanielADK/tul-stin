@@ -1,0 +1,75 @@
+name: Test & Deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - tests
+      - features/**
+  pull_request:
+    branches:
+      - main
+    types: [ opened, synchronize, reopened, closed ]
+
+jobs:
+  phpunit:
+    name: PHPUnit Tests & Coverage
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.run_tests.outputs.result }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ctype, dom, json, libxml, mbstring, pdo, phar, sqlite3, tokenizer, xml, xmlwriter
+          tools: composer, phpunit, phpstan
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPUnit Tests
+        id: run_tests
+        run: |
+          if vendor/bin/phpunit tests; then
+            echo "::set-output name=result::success"
+          else
+            echo "::set-output name=result::failure"
+          fi
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: DanielADK/tul-stin
+
+  deploy:
+    name: Deployment
+    needs: phpunit
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && needs.phpunit.outputs.result == 'success' }}
+    runs-on: ubuntu-latest
+    environment: AWS-EC2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set SSH keys
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} > ~/.ssh/known_hosts
+
+      - name: Connect, Checkout, Pull, and Composer Install
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          git checkout main && git pull && \
+          composer install --no-dev && exit"
+
+      - name: Clean keys
+        run: rm -rf ~/.ssh

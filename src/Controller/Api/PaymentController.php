@@ -146,7 +146,6 @@ class PaymentController extends AbstractController {
 		/** @var Router $GLOBALS ['router']; */
 		$methods = $GLOBALS['router']->getAllowedMethods($this->request->getPath());
 		$methods = array_map(fn($method) => $method->value, $methods);
-		error_log("Allowed methods: " . implode(", ", $methods));
 		$response->setHeader("Access-Control-Allow-Methods: " . implode(", ", $methods));
 		return $response;
 	}

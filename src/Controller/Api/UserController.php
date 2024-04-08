@@ -9,11 +9,14 @@ use StinWeatherApp\Model\User;
 
 class UserController extends AbstractController {
 	public function createUser(): Response {
-		$username = $this->request->getPost("username");
-		if (!is_string($username)) {
-			$content = json_encode(["status" => "Username is required."]);
-			return ($content === false) ? new Response("Failed to encode JSON.", 500) : new Response($content, 400);
+		$payload = json_decode($this->request->getRawBody(), true);
+		if (!is_array($payload)) {
+			return new Response("Failed to parse request.", 400);
 		}
+		if ($payload["username"] === null || strlen($payload["username"]) === 0) {
+			return new Response("Username is required.", 400);
+		}
+		$username = $payload["username"];
 
 		$user = new User(null, $username);
 		try {

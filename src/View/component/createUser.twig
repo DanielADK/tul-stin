@@ -1,0 +1,52 @@
+<h1 id="createUserHead">Create user</h1>
+<form class="g-3" id="createUser" method="POST">
+    <div class="mb-3">
+        <label class="form-label" for="username">Username:</label>
+        <input class="form-control" type="text" id="username" name="username" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Create</button>
+</form>
+<script>
+    var createForm = document.getElementById('createUser');
+    createForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const username = createForm.elements['username'].value;
+
+        const formData = {
+            username: username
+        };
+
+        fetch('/api/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        }).then(function (response) {
+            // Remove old message if exists
+            let oldMessageElement = document.getElementById('message');
+            if (oldMessageElement) {
+                oldMessageElement.remove();
+            }
+
+            let messageElement = document.createElement('div');
+            messageElement.id = 'message'; // Add id to the message element
+            let where = document.getElementById('createUserHead');
+            if (response.status === 200) {
+                messageElement.className = 'alert alert-success';
+            } else {
+                messageElement.className = 'alert alert-danger';
+            }
+            response.text().then(function (text) {
+                let pElement = document.createElement('span');
+                pElement.innerHTML = JSON.parse(text)["status"];
+                messageElement.appendChild(pElement);
+            });
+
+            where.insertAdjacentElement('afterend', messageElement);
+        }).catch(function (error) {
+            console.error('Error:', error);
+        });
+    });
+</script>

@@ -28,6 +28,10 @@ class ApiKeyAuth implements AuthInterface {
 	 * @throws Exception
 	 */
 	public function getUser(): User {
+		error_log($this->apiKey);
+		if (!isset($this->apiKey)) {
+			throw new Exception("API key not set");
+		}
 		$user = User::getByApiKey($this->apiKey);
 		if ($user === null) {
 			throw new Exception("User not found");

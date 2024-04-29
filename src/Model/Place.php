@@ -42,7 +42,7 @@ class Place implements PersistableInterface {
 	 * @return self|null
 	 */
 	public static function getById(int|string $id): ?self {
-		$result = Db::queryOne("SELECT * FROM place WHERE user = ?", array($id));
+		$result = Db::queryOne("SELECT * FROM place WHERE name = ?", array($id));
 		return (!$result) ? null : self::parseFromArray($result);
 	}
 

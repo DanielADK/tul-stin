@@ -43,7 +43,11 @@ class Response {
 		return $this->headers;
 	}
 
-	public function setContent(string $content): void {
+	public function setContent(string|false $content): void {
+		if ($content === false) {
+			$this->content = "";
+			return;
+		}
 		$this->content = $content;
 	}
 

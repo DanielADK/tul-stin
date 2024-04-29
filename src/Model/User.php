@@ -138,10 +138,10 @@ class User implements PersistableInterface {
 
 	public static function getByApiKey(string $apiKey): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE api_key = ?", [$apiKey]);
-		if (!isset($result['id'])) {
+		if (!isset($result['username'])) {
 			return null;
 		}
-		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['id']]);
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['username']]);
 		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();

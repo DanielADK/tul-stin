@@ -114,12 +114,12 @@ abstract class Translator {
 	 *
 	 * @param string $data
 	 *
-	 * @return string
+	 * @return array<string, string>
 	 */
-	abstract public function translate(string $data): string;
+	abstract public function translate(string $data): array;
 
 	/**
-	 * @description Returns the keys to return. Inner keys parsed by an dot
+	 * @description Returns the keys to return. Inner keys parsed by a dot
 	 *
 	 * @param array<string> $input array of data
 	 *

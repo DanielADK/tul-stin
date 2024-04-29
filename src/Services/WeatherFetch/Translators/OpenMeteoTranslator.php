@@ -49,7 +49,7 @@ class OpenMeteoTranslator extends Translator {
 	 * @throws Exception
 	 */
 	#[Override]
-	public function translate(string $data): string {
+	public function translate(string $data): array {
 		error_log($data);
 		$json = json_decode($data, true);
 		// Is not an array
@@ -61,14 +61,6 @@ class OpenMeteoTranslator extends Translator {
 		$this->validateExpectedKeys($json);
 
 		// Translate keys
-		$translated_array = $this->translateKeys($json);
-		error_log("Translated: " . json_encode($translated_array));
-
-		$forecastData = json_encode($translated_array);
-		if (!$forecastData) {
-			throw new Exception("Failed to decode JSON.");
-		}
-
-		return $forecastData;
+		return $this->translateKeys($json);
 	}
 }

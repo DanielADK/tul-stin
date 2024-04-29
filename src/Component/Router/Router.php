@@ -115,11 +115,15 @@ class Router {
 			// Create a new request object
 			$request = new Request();
 
+			// Remove GET parameters from the request URI
+			$parsedUrl = parse_url($requestUri);
+			$path = $parsedUrl["path"] ?? '';
+
 			// Find by index
-			$route = $this->getRouteByPath($requestUri, $requestMethod);
+			$route = $this->getRouteByPath($path, $requestMethod);
 			if ($route instanceof Route) {
 				// If the route matches the request, call the controller method and return the response.
-				if ($route->matches($requestUri) && $route->getHttpMethod() === $requestMethod) {
+				if ($route->matches($path) && $route->getHttpMethod() === $requestMethod) {
 					$controller = new ($route->getController())($request);
 					if (!method_exists($controller, $route->getControllerMethod())) {
 						throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");

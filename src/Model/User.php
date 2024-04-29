@@ -13,6 +13,8 @@ class User implements PersistableInterface {
 	private string $username;
 	private ?string $apiKey = null;
 	private ?DateTime $premiumUntil = null;
+	/** @var array<Place> */
+	private array $favouricePlaces = array();
 
 	public function __construct(?int $id, string $username) {
 		$this->id = $id;
@@ -35,6 +37,19 @@ class User implements PersistableInterface {
 
 	public function getUsername(): string {
 		return $this->username;
+	}
+
+	public function addFavouritePlace(Place $place): User {
+		$this->favouricePlaces[] = $place;
+		return $this;
+	}
+
+	/**
+	 * @description Returns the favourite places
+	 * @return array<Place>
+	 */
+	public function getFavouritePlaces(): array {
+		return $this->favouricePlaces;
 	}
 
 	/**
@@ -114,14 +129,16 @@ class User implements PersistableInterface {
 	#[\Override]
 	public static function getById(int|string $id): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE id = ?", [$id]);
-		$user = (!$result) ? null : self::parseFromArray($result);
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $id]);
+		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();
+
 		return $user;
 	}
 
 	/**
-	 * @param array<string, string> $array
+	 * @param array<string, string|array<string>> $array
 	 */
 	private static function parseFromArray(array $array): User {
 		$user = new User((int)$array['id'], $array['username']);
@@ -133,6 +150,17 @@ class User implements PersistableInterface {
 				$user->setPremiumUntil(new DateTime($array['premium_until']));
 			} catch (Exception $e) {
 				$user->setPremiumUntil(null);
+			}
+		}
+
+		// Parse favourites
+		if (!array_key_exists('favourites', $array) || !is_array($array['favourites'])) {
+			return $user;
+		}
+		foreach ($array["favourites"] as $favourite) {
+			$place = Place::getById($favourite['name']);
+			if ($place) {
+				$user->addFavouritePlace($place);
 			}
 		}
 		return $user;
@@ -176,11 +204,20 @@ class User implements PersistableInterface {
 		}
 
 		// Check if the operation was successful
-		if ($result) {
-			return true;
-		} else {
+		if (!$result) {
 			throw new Exception('Failed to save the user.');
 		}
+
+		// Persist the favourite places
+		foreach ($this->favouricePlaces as $place) {
+			$exists = Db::queryOne('SELECT * FROM favourite_places WHERE user = :user AND name = :place',
+				[':user' => $this->id, ':place' => $place->getName()]);
+			if ($exists) {
+				Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :place)',
+					[':user' => $this->id, ':place' => $place->getName()]);
+			}
+		}
+		return true;
 	}
 
 	/**

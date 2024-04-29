@@ -1,4 +1,41 @@
 <div class="row mt-3">
     <h2>Get information about weather!</h2>
-
+    <form method="GET">
+        <div class="col-12">
+            <label class="form-label" for="api-code">Enter API code for premium access:</label>
+            <input class="form-control" type="text" id="api-code" name="api-code" required>
+        </div>
+        <script>
+            document.getElementById('api-code').addEventListener('change', function() {
+                fetch("/api/places", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + document.getElementById('api-code').value
+                    },
+                }).then(response => response.json()).then(data => {
+                    let select = document.createElement('select');
+                    select.classList.add('form-control');
+                    select.id = 'place';
+                    select.name = 'place';
+                    data.forEach(place => {
+                        let option = document.createElement('option');
+                        option.value = place.id;
+                        option.innerText = place.name;
+                        select.appendChild(option);
+                    });
+                    document.getElementById('api-code').insertAdjacentElement('afterend', select);
+                });
+            });
+        </script>
+    </form>
+    <form method="GET">
+        <div class="col-lg-5">
+            <label class="form-label" for="latitude">Latitude:</label>
+            <input class="form-control" type="text" id="latitude" name="latitude" required>
+        </div>
+        <div class="col-lg-5">
+            <label class="form-label" for="longitude">Longitude:</label>
+            <input class="form-control" type="text" id="longitude" name="longitude" required>
+        </div>
+    </form>
 </div>

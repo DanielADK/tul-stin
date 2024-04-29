@@ -28,5 +28,11 @@ return array(
 	new Route("/api/user", ApiUserController::class, "createUser", Method::POST),
 	new Route("/api/user", ApiUserController::class, "options", Method::OPTIONS),
 	new Route("/api/user/:username", ApiUserController::class, "deleteUser", Method::DELETE, new ParamPathStrategy()),
+	// places
+	new Route("/api/places", ApiWeatherController::class, "getPlaces", Method::GET),
+	new Route("/api/places", ApiWeatherController::class, "addPlace", Method::POST),
+	new Route("/api/places/:city", ApiWeatherController::class, "removePlace", Method::DELETE),
+	// forecast
 	new Route("/api/weather", ApiWeatherController::class, "getWeather", Method::GET),
+	new Route("/api/weather", ApiWeatherController::class, "options", Method::OPTIONS),
 );

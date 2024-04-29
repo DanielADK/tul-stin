@@ -22,6 +22,7 @@ class Request {
 	private array $get;
 	/** @var string $rawBody */
 	private string $rawBody;
+	private string $httpAuthorization;
 
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
@@ -31,6 +32,7 @@ class Request {
 		$this->post = $_POST;
 		$this->get = $_GET;
 		$this->rawBody = file_get_contents('php://input');
+		$this->httpAuthorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
 		// Parse headers
 		$this->headers = array();
@@ -107,5 +109,14 @@ class Request {
 	 */
 	public function getRawBody(): string {
 		return $this->rawBody;
+	}
+
+	/**
+	 * @description Returns the HTTP authorization header
+	 *
+	 * @return string
+	 */
+	public function getHttpAuthorization(): string {
+		return $this->httpAuthorization;
 	}
 }

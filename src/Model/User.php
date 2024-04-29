@@ -123,7 +123,6 @@ class User implements PersistableInterface {
 
 	/**
 	 * @param int|string $id
-	 *
 	 * @return ?User
 	 */
 	#[\Override]
@@ -134,6 +133,18 @@ class User implements PersistableInterface {
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();
 
+		return $user;
+	}
+
+	public static function getByApiKey(string $apiKey): ?User {
+		$result = Db::queryOne("SELECT * FROM user WHERE api_key = ?", [$apiKey]);
+		if (!isset($result['id'])) {
+			return null;
+		}
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['id']]);
+		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
+		// If non-null, validate the user's premium status
+		$user?->validatePremium();
 		return $user;
 	}
 

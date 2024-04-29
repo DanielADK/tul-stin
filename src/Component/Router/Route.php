@@ -38,7 +38,11 @@ final class Route {
 	 * @param Method                     $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 * @param PathStrategyInterface|null $pathStrategy The strategy for matching the path
 	 */
-	public function __construct(string $path, string $controller, string $controllerMethod, Method $httpMethod = Method::GET, ?PathStrategyInterface $pathStrategy = null) {
+	public function __construct(string                 $path,
+	                            string                 $controller,
+	                            string                 $controllerMethod,
+	                            Method                 $httpMethod = Method::GET,
+	                            ?PathStrategyInterface $pathStrategy = null) {
 		if (!class_exists($controller)) {
 			throw new \InvalidArgumentException("Controller class does not exist: $controller");
 		}

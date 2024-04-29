@@ -34,6 +34,31 @@ class UserTest extends TestCase {
                 premium_until TEXT
             )
         ");
+		// Create the place table
+		Db::execute("create table place (
+			    name      text   not null
+			        constraint place_pk
+			            primary key,
+			    latitude  double not null,
+			    longitude double not null
+			);
+			
+			create unique index place_name_uindex
+			    on place (name);
+		");
+		// Create the favourite places table
+		Db::execute("
+			create table favourite_places (
+		    	user integer not null
+		        constraint favourite_places_user_id_fk
+		            references user
+		            on delete cascade,
+		    	name text    not null
+		        constraint favourite_places_place_name_fk
+		            references place
+		            on update cascade
+			);
+		");
 
 		$this->user = new User(1, 'TestUser');
 	}

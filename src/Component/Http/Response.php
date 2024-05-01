@@ -47,7 +47,7 @@ class Response {
 	public function setContent(string|false $content): Response {
 		if ($content === false) {
 			$this->content = "";
-			return;
+			return $this;
 		}
 		$this->content = $content;
 		return $this;

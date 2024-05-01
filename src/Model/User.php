@@ -222,10 +222,10 @@ class User implements PersistableInterface {
 		// Persist the favourite places
 		foreach ($this->favouricePlaces as $place) {
 			$exists = Db::queryOne('SELECT * FROM favourite_places WHERE user = :user AND name = :place',
-				[':user' => $this->id, ':place' => $place->getName()]);
-			if ($exists) {
+				[':user' => $this->username, ':place' => $place->getName()]);
+			if (!$exists) {
 				Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :place)',
-					[':user' => $this->id, ':place' => $place->getName()]);
+					[':user' => $this->username, ':place' => $place->getName()]);
 			}
 		}
 		return true;

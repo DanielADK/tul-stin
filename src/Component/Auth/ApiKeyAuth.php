@@ -7,9 +7,13 @@ use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Model\User;
 
 class ApiKeyAuth implements AuthInterface {
-	private string $apiKey;
+	public ?string $apiKey = null;
 
 	/**
+	 * @description Login user by API key
+	 *
+	 * @param Request $request
+	 *
 	 * @return bool
 	 */
 	public function login(Request $request): bool {
@@ -28,14 +32,20 @@ class ApiKeyAuth implements AuthInterface {
 	 * @throws Exception
 	 */
 	public function getUser(): User {
-		error_log($this->apiKey);
 		if (!isset($this->apiKey)) {
-			throw new Exception("API key not set");
+			throw new Exception("No API key detected");
 		}
 		$user = User::getByApiKey($this->apiKey);
-		if ($user === null) {
-			throw new Exception("User not found");
+		if (!isset($user) || !($user instanceof User)) {
+			throw new Exception("API key is invalid");
 		}
 		return $user;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function isAuthenticated(): bool {
+		return isset($this->apiKey);
 	}
 }

@@ -6,8 +6,6 @@ use Exception;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Request;
 use StinWeatherApp\Component\Http\Response;
-use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
-use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
 use StinWeatherApp\Component\Router\Strategy\PathValueExtractor;
 use StinWeatherApp\Controller\NotFoundController;
 
@@ -19,6 +17,7 @@ use StinWeatherApp\Controller\NotFoundController;
  * @package StinWeatherApp\Component\Router
  */
 class Router {
+	const array UNAUTHORIZED_MESSAGE = ["status" => "failed", "description" => "Unauthorized"];
 
 	/** @var array<string, array<string, Route>> $routes Array of Methods -> array path-route */
 	private array $routes = array();
@@ -31,26 +30,18 @@ class Router {
 	public function __construct() {
 		// Set the default not found route.
 		$this->notFoundRoute = new Route("/not-found", NotFoundController::class, "index", Method::GET);
-		$this->addRoute($this->notFoundRoute->getPath(), $this->notFoundRoute->getController(), $this->notFoundRoute->getControllerMethod(), $this->notFoundRoute->getHttpMethod());
+		$this->addRoute($this->notFoundRoute);
 	}
 
 	/**
 	 * Adds a new route to the router.
 	 *
-	 * @param string $path The path that the route will handle.
-	 * @param string $controller The controller that will handle the route.
-	 * @param string $controllerMethod The method of the controller that will be called.
-	 * @param Method $httpMethod The HTTP method that the route will respond to.
-	 * @param PathStrategyInterface $strategy The strategy that the route will use to match the path.
+	 * @param Route $route The route to add.
 	 *
 	 * @return Router
 	 */
-	public function addRoute(string $path, string $controller, string $controllerMethod = "index", Method $httpMethod = Method::GET, ?PathStrategyInterface $strategy = null): Router {
-		if (!$strategy) {
-			$strategy = new DirectPathStrategy();
-		}
-		$this->routes[$httpMethod->value][$path] = new Route($path, $controller, $controllerMethod, $httpMethod, $strategy);
-
+	public function addRoute(Route $route): Router {
+		$this->routes[$route->getHttpMethod()->value][$route->getPath()] = $route;
 		return $this;
 	}
 
@@ -122,6 +113,13 @@ class Router {
 			// Find by index
 			$route = $this->getRouteByPath($path, $requestMethod);
 			if ($route instanceof Route) {
+				// If the route requires authorization, check if the user is authenticated.
+				$authService = $route->getAuth();
+				if (isset($authService) && !$authService->login($request)) {
+					// If the user is not authenticated, return a 401 response.
+					return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
+				}
+
 				// If the route matches the request, call the controller method and return the response.
 				if ($route->matches($path) && $route->getHttpMethod() === $requestMethod) {
 					$controller = new ($route->getController())($request);
@@ -129,14 +127,26 @@ class Router {
 						throw new Exception("Method {$route->getControllerMethod()} in controller {$route->getController()} does not exist!");
 					}
 					$params = PathValueExtractor::extractValue($route->getPath(), $request);
+
+					// add authenticated User if exists to params
+					if (isset($authService)) {
+						if ($authService->isAuthenticated()) {
+							try {
+								$params["user"] = $authService->getUser();
+							} catch (Exception $e) {
+								error_log($e->getMessage());
+								return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
+							}
+						} else {
+							return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
+						}
+					}
+
 					/** @var callable $callable */
 					$callable = [$controller, $route->getControllerMethod()];
 					$response = call_user_func_array($callable, $params);
 
-					// If the controller action returns a Response object, send it to the client.
-					if ($response instanceof Response) {
-						$response->send();
-					} else {
+					if (!$response instanceof Response) {
 						// If the controller action does not return a Response object, throw an exception.
 						throw new Exception("Controller action must return an instance of Response");
 					}
@@ -149,11 +159,7 @@ class Router {
 		} catch (Exception $e) {
 			// If an exception occurs, send a 500 response.
 			error_log($e->getMessage());
-
-			$response = new Response(statusCode: 500);
-			$response->send();
-
-			return $response;
+			return new Response(statusCode: 500);
 		}
 	}
 	/**
@@ -198,5 +204,4 @@ class Router {
 
 		return $allowedMethods;
 	}
-
 }

@@ -28,4 +28,10 @@ interface AuthInterface {
 	 */
 	public function getUser(): User;
 
+	/**
+	 * @description Returns if user is already authenticated
+	 * @return bool
+	 */
+	public function isAuthenticated(): bool;
+
 }

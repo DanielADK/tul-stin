@@ -4,6 +4,7 @@ namespace Component\Router\Strategy;
 
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Component\Router\Strategy\ParamPathStrategy;
 use StinWeatherApp\Controller\TestController;
@@ -42,8 +43,8 @@ class ParamPathStrategyTest extends TestCase {
 		$router = new Router();
 
 		// Add routes with ParamPathStrategy
-		$router->addRoute('/weather/:city', TestController::class, 'weather', Method::GET, new ParamPathStrategy());
-		$router->addRoute('/weather/:city/:day', TestController::class, 'weatherday', Method::GET, new ParamPathStrategy());
+		$router->addRoute(new Route('/weather/:city', TestController::class, 'weather', Method::GET, new ParamPathStrategy()));
+		$router->addRoute(new Route('/weather/:city/:day', TestController::class, 'weatherday', Method::GET, new ParamPathStrategy()));
 
 		// Test dispatch with single variable in path
 		$requestUri = '/weather/prague';

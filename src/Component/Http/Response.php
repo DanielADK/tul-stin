@@ -10,7 +10,8 @@ class Response {
 
 	/**
 	 * Constructor of response
-	 * @param string $content
+	 *
+	 * @param string|false $content
 	 * @param int    $statusCode
 	 * @param array<string>  $headers
 	 */
@@ -43,12 +44,13 @@ class Response {
 		return $this->headers;
 	}
 
-	public function setContent(string|false $content): void {
+	public function setContent(string|false $content): Response {
 		if ($content === false) {
 			$this->content = "";
 			return;
 		}
 		$this->content = $content;
+		return $this;
 	}
 
 	public function getContent(): string {

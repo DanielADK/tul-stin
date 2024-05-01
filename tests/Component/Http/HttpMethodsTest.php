@@ -36,7 +36,7 @@ class HttpMethodsTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 		$initialLevel = ob_get_level();
 		ob_start();
-		$this->router->dispatch('/test-get', Method::from("GET"));
+		$this->router->dispatch('/test-get', Method::from("GET"))->send();
 		$output = ob_get_clean();
 		$this->assertEquals("GET method", $output);
 		while (ob_get_level() > $initialLevel) {
@@ -48,7 +48,7 @@ class HttpMethodsTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$initialLevel = ob_get_level();
 		ob_start();
-		$this->router->dispatch('/test-post', Method::from("POST"));
+		$this->router->dispatch('/test-post', Method::from("POST"))->send();
 		$output = ob_get_clean();
 		$this->assertEquals("POST method", $output);
 		while (ob_get_level() > $initialLevel) {
@@ -60,7 +60,7 @@ class HttpMethodsTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'PUT';
 		$initialLevel = ob_get_level();
 		ob_start();
-		$this->router->dispatch('/test-put', Method::from("PUT"));
+		$this->router->dispatch('/test-put', Method::from("PUT"))->send();
 		$output = ob_get_clean();
 		$this->assertEquals("PUT method", $output);
 		while (ob_get_level() > $initialLevel) {
@@ -72,7 +72,7 @@ class HttpMethodsTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'DELETE';
 		$initialLevel = ob_get_level();
 		ob_start();
-		$this->router->dispatch('/test-delete', Method::from("DELETE"));
+		$this->router->dispatch('/test-delete', Method::from("DELETE"))->send();
 		$output = ob_get_clean();
 		$this->assertEquals("DELETE method", $output);
 		while (ob_get_level() > $initialLevel) {
@@ -84,7 +84,7 @@ class HttpMethodsTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 		$initialLevel = ob_get_level();
 		ob_start();
-		$this->router->dispatch('/test-options', Method::from("OPTIONS"));
+		$this->router->dispatch('/test-options', Method::from("OPTIONS"))->send();
 		$output = ob_get_clean();
 		$this->assertEquals("OPTIONS method", $output);
 		while (ob_get_level() > $initialLevel) {

@@ -14,7 +14,7 @@ class Response {
 	 * @param int    $statusCode
 	 * @param array<string>  $headers
 	 */
-	public function __construct(string $content = "", int $statusCode = 200, array $headers = array()) {
+	public function __construct(string|false $content = "", int $statusCode = 200, array $headers = array()) {
 		$this->setContent($content);
 		$this->setStatusCode($statusCode);
 		foreach ($headers as $header) {

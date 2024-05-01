@@ -92,7 +92,6 @@ final class Route {
 
 	/**
 	 * Get the controller that handles the route
-	 *
 	 * @return string The controller that handles the route
 	 */
 	public function getController(): string {
@@ -101,7 +100,6 @@ final class Route {
 
 	/**
 	 * Set the method in the controller that handles the route
-	 *
 	 * @param string $controllerMethod The method in the controller that handles the route
 	 * @return Route The current route instance
 	 */
@@ -112,7 +110,6 @@ final class Route {
 
 	/**
 	 * Get the method in the controller that handles the route
-	 *
 	 * @return string The method in the controller that handles the route
 	 */
 	public function getControllerMethod(): string {
@@ -121,7 +118,6 @@ final class Route {
 
 	/**
 	 * Set the HTTP method of the route (GET, POST, etc.)
-	 *
 	 * @param Method $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 * @return Route The current route instance
 	 */
@@ -132,7 +128,6 @@ final class Route {
 
 	/**
 	 * Get the HTTP method of the route (GET, POST, etc.)
-	 *
 	 * @return Method The HTTP method of the route (GET, POST, etc.)
 	 */
 	public function getHttpMethod(): Method {
@@ -141,7 +136,6 @@ final class Route {
 
 	/**
 	 * Get the strategy for matching the path
-	 *
 	 * @return PathStrategyInterface The strategy for matching the path
 	 */
 	public function getStrategy(): PathStrategyInterface {
@@ -150,7 +144,6 @@ final class Route {
 
 	/**
 	 * Is path matching the route with the strategy
-	 *
 	 * @param string $requestPath
 	 * @return bool
 	 */
@@ -159,21 +152,10 @@ final class Route {
 	}
 
 	/**
-	 * Does the route require authentication
-	 *
-	 * @return bool
-	 */
-	public function requiresAuth(): bool {
-		return $this->auth !== null;
-	}
-
-	/**
 	 * Get authentication service
-	 *
 	 * @return AuthInterface|null
 	 */
 	public function getAuth(): ?AuthInterface {
 		return $this->auth;
 	}
-
 }

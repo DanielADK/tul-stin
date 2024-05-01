@@ -114,9 +114,7 @@ class Router {
 			if ($route instanceof Route) {
 				// If the route requires authorization, check if the user is authenticated.
 				$authService = $route->getAuth();
-				error_log($route->getPath());
-				error_log((string)($route->getAuth() === null));
-				if ($route->requiresAuth() && $authService !== null && !$authService->login($request)) {
+				if ($authService !== null && !$authService->login($request)) {
 					// If the user is not authenticated, return a 401 response.
 					return new Response(json_encode(["status" => "failed", "description" => "Unauthorized"]), 401);
 				}
@@ -130,13 +128,12 @@ class Router {
 					$params = PathValueExtractor::extractValue($route->getPath(), $request);
 
 					// add authenticated User if exists to params
-					if ($route->requiresAuth() && $authService !== null && $authService->isAuthenticated()) {
-						$params["user"] = $authService->getUser();
-
-						error_log("AA");
-					} else {
-						error_log("BB");
-						return new Response(json_encode(["status" => "failed", "description" => "Unauthorized"]), 401);
+					if ($authService !== null) {
+						if ($authService->isAuthenticated()) {
+							$params["user"] = $authService->getUser();
+						} else {
+							return new Response(json_encode(["status" => "failed", "description" => "Unauthorized"]), 401);
+						}
 					}
 
 					/** @var callable $callable */

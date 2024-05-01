@@ -5,6 +5,7 @@ namespace Component\Http;
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\TestController;
 
@@ -53,7 +54,7 @@ class ResponseTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 		// Add a test route that sets headers and returns a Response
 		$router = new Router();
-		$router->addRoute('/test', TestController::class, 'methodSetsHeaders', Method::GET);
+		$router->addRoute(new Route('/test', TestController::class, 'methodSetsHeaders', Method::GET));
 
 		// Call dispatch with a request URI and method that match the test route
 		$response = $router->dispatch('/test', Method::GET);

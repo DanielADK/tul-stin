@@ -3,7 +3,9 @@
 namespace Component\Router;
 
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use StinWeatherApp\Component\Auth\AuthInterface;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Http\Response;
 use StinWeatherApp\Component\Router\Route;
@@ -32,9 +34,21 @@ class RouterTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @description Test if the route has an authentication object
+	 * @throws Exception
+	 */
+	public function testGetAuth() {
+		$authMock = $this->createMock(AuthInterface::class);
+		$routeWithAuth = new Route('/auth-path', TestController::class, 'testMethod', Method::GET, null, $authMock);
+		$this->assertSame($authMock, $routeWithAuth->getAuth());
+
+		$routeWithoutAuth = new Route('/auth-path', TestController::class, 'testMethod', Method::GET);
+		$this->assertNull($routeWithoutAuth->getAuth());
+	}
 	public function testAddRoute(): void {
 		$path = '/test';
-		$this->router->addRoute($path, TestController::class, 'testMethod', Method::GET);
+		$this->router->addRoute(new Route($path, TestController::class, 'testMethod', Method::GET));
 
 		$route = $this->router->getRouteByPath($path);
 		$this->assertNotNull($route);
@@ -53,8 +67,8 @@ class RouterTest extends TestCase {
 	}
 	public function testGetRoutes(): void
 	{
-		$this->router->addRoute('/test1', TestController::class, 'testMethod', Method::GET);
-		$this->router->addRoute('/test2', TestController::class, 'testMethod', Method::GET);
+		$this->router->addRoute(new Route('/test1', TestController::class, 'testMethod', Method::GET));
+		$this->router->addRoute(new Route('/test2', TestController::class, 'testMethod', Method::GET));
 
 		$routes = $this->router->getRoutes();
 		$count = 0;
@@ -66,7 +80,7 @@ class RouterTest extends TestCase {
 	}
 
 	public function testGetRouteByPath(): void {
-		$this->router->addRoute('/test', TestController::class, 'testMethod', Method::GET);
+		$this->router->addRoute(new Route('/test', TestController::class, 'testMethod', Method::GET));
 
 		$route = $this->router->getRouteByPath('/test');
 
@@ -89,14 +103,14 @@ class RouterTest extends TestCase {
 
 		$this->assertInstanceOf(Response::class, $response);
 
-		$this->router->addRoute('/invalidcontrollermethod', TestController::class, 'invalidcontrollermethod', Method::GET);
+		$this->router->addRoute(new Route('/invalidcontrollermethod', TestController::class, 'invalidcontrollermethod', Method::GET));
 
 		$response = $this->router->dispatch('/invalidcontrollermethod', Method::GET);
 		$this->assertEquals(500, $response->getStatusCode());
 	}
 
 	public function testDispatchControllerActionDoesNotReturnResponse(): void {
-		$this->router->addRoute('/noResponseObjectReturn', TestController::class, 'noResponseObjectReturn', Method::GET);
+		$this->router->addRoute(new Route('/noResponseObjectReturn', TestController::class, 'noResponseObjectReturn', Method::GET));
 
 		// Expect an exception when the controller action does not return a Response
 
@@ -121,7 +135,7 @@ class RouterTest extends TestCase {
 		$numOfRoutes = 50_000;
 		// Create $numOfRoutes routes with unique paths and add them to the router
 		for ($i = 0; $i < $numOfRoutes; $i++) {
-			$this->router->addRoute("/test$i", TestController::class, 'testMethod', Method::GET);
+			$this->router->addRoute(new Route("/test$i", TestController::class, 'testMethod', Method::GET));
 		}
 
 		// Create an array with all paths in random order

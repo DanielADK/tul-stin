@@ -4,6 +4,7 @@ namespace Component\Http;
 
 use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Component\Http\Method;
+use StinWeatherApp\Component\Router\Route;
 use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\TestController;
 
@@ -14,11 +15,11 @@ class HttpCodesTest extends TestCase {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
 		$this->router = new Router();
-		$this->router->addRoute('/test-200', TestController::class, 'status200', Method::GET);
-		$this->router->addRoute('/test-201', TestController::class, 'status201', Method::GET);
-		$this->router->addRoute('/test-400', TestController::class, 'status400', Method::GET);
-		$this->router->addRoute('/test-404', TestController::class, 'status404', Method::GET);
-		$this->router->addRoute('/test-500', TestController::class, 'status500', Method::GET);
+		$this->router->addRoute(new Route('/test-200', TestController::class, 'status200', Method::GET));
+		$this->router->addRoute(new Route('/test-201', TestController::class, 'status201', Method::GET));
+		$this->router->addRoute(new Route('/test-400', TestController::class, 'status400', Method::GET));
+		$this->router->addRoute(new Route('/test-404', TestController::class, 'status404', Method::GET));
+		$this->router->addRoute(new Route('/test-500', TestController::class, 'status500', Method::GET));
 	}
 
 	public function testStatus200(): void {

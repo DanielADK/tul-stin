@@ -221,7 +221,7 @@ class User implements PersistableInterface {
 
 		// Persist favourite places
 		$favouritePlaces = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
-		if (!$favouritePlaces) {
+		if (!is_array($favouritePlaces)) {
 			throw new Exception('Failed to get the favourite places.');
 		}
 		$favouritePlacesAssoc = array();

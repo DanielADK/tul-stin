@@ -30,4 +30,4 @@ foreach ($routes as $route) {
 	$router->addRoute($route);
 }
 
-$router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]));
+$router->dispatch($_SERVER["REQUEST_URI"], Method::from($_SERVER["REQUEST_METHOD"]))->send();

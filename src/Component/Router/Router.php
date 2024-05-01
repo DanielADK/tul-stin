@@ -17,6 +17,7 @@ use StinWeatherApp\Controller\NotFoundController;
  * @package StinWeatherApp\Component\Router
  */
 class Router {
+	const array UNAUTHORIZED_MESSAGE = ["status" => "failed", "description" => "Unauthorized"];
 
 	/** @var array<string, array<string, Route>> $routes Array of Methods -> array path-route */
 	private array $routes = array();
@@ -114,9 +115,9 @@ class Router {
 			if ($route instanceof Route) {
 				// If the route requires authorization, check if the user is authenticated.
 				$authService = $route->getAuth();
-				if ($authService !== null && !$authService->login($request)) {
+				if (isset($authService) && !$authService->login($request)) {
 					// If the user is not authenticated, return a 401 response.
-					return new Response(json_encode(["status" => "failed", "description" => "Unauthorized"]), 401);
+					return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
 				}
 
 				// If the route matches the request, call the controller method and return the response.
@@ -128,11 +129,16 @@ class Router {
 					$params = PathValueExtractor::extractValue($route->getPath(), $request);
 
 					// add authenticated User if exists to params
-					if ($authService !== null) {
+					if (isset($authService)) {
 						if ($authService->isAuthenticated()) {
-							$params["user"] = $authService->getUser();
+							try {
+								$params["user"] = $authService->getUser();
+							} catch (Exception $e) {
+								error_log($e->getMessage());
+								return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
+							}
 						} else {
-							return new Response(json_encode(["status" => "failed", "description" => "Unauthorized"]), 401);
+							return new Response(json_encode(self::UNAUTHORIZED_MESSAGE), 401);
 						}
 					}
 
@@ -140,10 +146,7 @@ class Router {
 					$callable = [$controller, $route->getControllerMethod()];
 					$response = call_user_func_array($callable, $params);
 
-					// If the controller action returns a Response object, send it to the client.
-					if ($response instanceof Response) {
-						$response->send();
-					} else {
+					if (!$response instanceof Response) {
 						// If the controller action does not return a Response object, throw an exception.
 						throw new Exception("Controller action must return an instance of Response");
 					}
@@ -156,11 +159,7 @@ class Router {
 		} catch (Exception $e) {
 			// If an exception occurs, send a 500 response.
 			error_log($e->getMessage());
-
-			$response = new Response(statusCode: 500);
-			$response->send();
-
-			return $response;
+			return new Response(statusCode: 500);
 		}
 	}
 	/**

@@ -2,6 +2,7 @@
 
 namespace StinWeatherApp\Component\Router;
 
+use StinWeatherApp\Component\Auth\AuthInterface;
 use StinWeatherApp\Component\Http\Method;
 use StinWeatherApp\Component\Router\Strategy\DirectPathStrategy;
 use StinWeatherApp\Component\Router\Strategy\PathStrategyInterface;
@@ -28,6 +29,7 @@ final class Route {
 
 	/** @var PathStrategyInterface $strategy The strategy for matching the path*/
 	private PathStrategyInterface $strategy;
+	private ?AuthInterface $auth;
 
 	/**
 	 * Route constructor.
@@ -37,12 +39,14 @@ final class Route {
 	 * @param string                     $controllerMethod The method in the controller that handles the route
 	 * @param Method                     $httpMethod The HTTP method of the route (GET, POST, etc.)
 	 * @param PathStrategyInterface|null $pathStrategy The strategy for matching the path
+	 * @param AuthInterface|null $auth The authentication service
 	 */
 	public function __construct(string                 $path,
 	                            string                 $controller,
 	                            string                 $controllerMethod,
 	                            Method                 $httpMethod = Method::GET,
-	                            ?PathStrategyInterface $pathStrategy = null) {
+	                            ?PathStrategyInterface $pathStrategy = new DirectPathStrategy(),
+	                            ?AuthInterface         $auth = null) {
 		if (!class_exists($controller)) {
 			throw new \InvalidArgumentException("Controller class does not exist: $controller");
 		}
@@ -52,6 +56,7 @@ final class Route {
 		$this->controllerMethod = $controllerMethod;
 		$this->httpMethod = $httpMethod;
 		$this->strategy = $pathStrategy ?? new DirectPathStrategy();
+		$this->auth = $auth;
 	}
 
 	/**
@@ -135,18 +140,6 @@ final class Route {
 	}
 
 	/**
-	 * Set the strategy for matching the path
-	 *
-	 * @param PathStrategyInterface $strategy The strategy for matching the path
-	 *
-	 * @return Route The current route instance
-	 */
-	public function setStrategy(PathStrategyInterface $strategy): Route {
-		$this->strategy = $strategy;
-		return $this;
-	}
-
-	/**
 	 * Get the strategy for matching the path
 	 *
 	 * @return PathStrategyInterface The strategy for matching the path
@@ -163,6 +156,24 @@ final class Route {
 	 */
 	public function matches(string $requestPath): bool {
 		return $this->strategy->matches($this->path, $requestPath);
+	}
+
+	/**
+	 * Does the route require authentication
+	 *
+	 * @return bool
+	 */
+	public function requiresAuth(): bool {
+		return $this->auth !== null;
+	}
+
+	/**
+	 * Get authentication service
+	 *
+	 * @return AuthInterface|null
+	 */
+	public function getAuth(): ?AuthInterface {
+		return $this->auth;
 	}
 
 }

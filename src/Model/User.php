@@ -219,13 +219,29 @@ class User implements PersistableInterface {
 			throw new Exception('Failed to save the user.');
 		}
 
+		// Persist favourite places
+		$favouritePlaces = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
+		if (!$favouritePlaces) {
+			throw new Exception('Failed to get the favourite places.');
+		}
+		$favouritePlacesAssoc = array();
+		foreach ($favouritePlaces as $favourite) {
+			if (!isset($favourite['name'])) {
+				continue;
+			}
+			$favouritePlacesAssoc[$favourite['name']] = true;
+		}
+
 		// Persist the favourite places
 		foreach ($this->favouricePlaces as $place) {
-			$exists = Db::queryOne('SELECT * FROM favourite_places WHERE user = :user AND name = :place',
-				[':user' => $this->username, ':place' => $place->getName()]);
-			if (!$exists) {
-				Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :place)',
-					[':user' => $this->username, ':place' => $place->getName()]);
+			if (!isset($favouritePlacesAssoc[$place->getName()])) {
+				$result = Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :name)', [
+					':user' => $this->username,
+					':name' => $place->getName()
+				]);
+				if (!$result) {
+					throw new Exception('Failed to save the favourite place.');
+				}
 			}
 		}
 		return true;

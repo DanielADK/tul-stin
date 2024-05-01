@@ -10,6 +10,12 @@ class Place implements PersistableInterface {
 	private float $latitude;
 	private float $longitude;
 
+	public function __construct(?string $name, float $latitude, float $longitude) {
+		$this->setName($name);
+		$this->setLatitude($latitude);
+		$this->setLongitude($longitude);
+	}
+
 	public function setName(string $name): Place {
 		$this->name = $name;
 		return $this;
@@ -75,10 +81,6 @@ class Place implements PersistableInterface {
 			"longitude" => $this->longitude
 		];
 
-		if ($this->name === null) {
-			return Db::execute("INSERT INTO place (name, latitude, longitude) VALUES (?, ?, ?)", array_values($data));
-		} else {
-			return Db::execute("UPDATE place SET name = ?, latitude = ?, longitude = ? WHERE name = ?", array_values($data));
-		}
+		return Db::execute("INSERT INTO place (name, latitude, longitude) VALUES (:name, :latitude, :longitude)", $data);
 	}
 }

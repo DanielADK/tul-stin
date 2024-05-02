@@ -10,7 +10,7 @@ class Place implements PersistableInterface {
 	private float $latitude;
 	private float $longitude;
 
-	public function __construct(?string $name, float $latitude, float $longitude) {
+	public function __construct(string $name, float $latitude, float $longitude) {
 		$this->setName($name);
 		$this->setLatitude($latitude);
 		$this->setLongitude($longitude);
@@ -64,11 +64,11 @@ class Place implements PersistableInterface {
 				throw new \InvalidArgumentException("Missing key: $key");
 			}
 		}
-		$place = new Place();
-		$place->setName($array["name"]);
-		$place->setLatitude((float)$array["latitude"]);
-		$place->setLongitude((float)$array["longitude"]);
-		return $place;
+		return new Place(
+			name: $array["name"],
+			latitude: (float)$array["latitude"],
+			longitude: (float)$array["longitude"]
+		);
 	}
 
 	/**
@@ -81,6 +81,10 @@ class Place implements PersistableInterface {
 			"longitude" => $this->longitude
 		];
 
-		return Db::execute("INSERT INTO place (name, latitude, longitude) VALUES (:name, :latitude, :longitude)", $data);
+		return Db::execute("INSERT INTO place (name, latitude, longitude)
+							        SELECT * FROM (SELECT :name as name, :latitude as latitude, :longitude as longitude) AS tmp
+							        WHERE NOT EXISTS (
+							            SELECT name FROM place WHERE name = :name
+							        ) LIMIT 1", $data);
 	}
 }

@@ -52,14 +52,35 @@ class PlacesController extends AbstractController {
 				->setContent(json_encode(["status" => "error", "message" => "Invalid data types."]));
 		}
 
-		// Add place
-		$place = new Place(name: $data["name"],
-			latitude: $data["latitude"],
-			longitude: $data["longitude"]);
-		$place->persist();
+		// Check if the place already exists
+		$place = Place::getById($data["name"]);
+		if (!$place) {
+			// Add place
+			$place = new Place(name: $data["name"],
+				latitude: (float)$data["latitude"],
+				longitude: (float)$data["longitude"]);
+			$place->persist();
+		}
+
+		// Check if the user already has this place in favourite places
+		$favouritePlaces = $user->getFavouritePlaces();
+		foreach ($favouritePlaces as $favouritePlace) {
+			if ($favouritePlace->getName() === $place->getName()) {
+				return $response->setStatusCode(400)
+					->setContent(json_encode(["status" => "error", "message" => "The place is already in favourite places."]));
+			}
+		}
 
 		// Add place to user
 		$user->addFavouritePlace($place);
-		$user->persist();
+		try {
+			$user->persist();
+		} catch (\Exception $e) {
+			return $response->setStatusCode(500)
+				->setContent(json_encode(["status" => "error", "message" => "Failed to add place to favourite places."]));
+		}
+
+		return $response->setStatusCode(200)
+			->setContent(json_encode(["status" => "success"]));
 	}
 }

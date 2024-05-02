@@ -83,4 +83,39 @@ class PlacesController extends AbstractController {
 		return $response->setStatusCode(200)
 			->setContent(json_encode(["status" => "success"]));
 	}
+
+	public function removePlace(User $user, string $city): Response {
+		// Response
+		$response = new Response();
+		$response->setJSON();
+
+		// Check if the place exists
+		$place = Place::getById($city);
+		if (!$place) {
+			return $response->setStatusCode(400)
+				->setContent(json_encode(["status" => "error", "message" => "The place does not exist."]));
+		}
+
+		// Check if the user has this place in favourite places
+		$favouritePlaces = $user->getFavouritePlaces();
+		$matchingPlaces = array_filter($favouritePlaces, fn($p) => $p->getName() === $place->getName());
+		$found = !empty($matchingPlaces);
+
+		if (!$found) {
+			return $response->setStatusCode(400)
+				->setContent(json_encode(["status" => "error", "message" => "The place is not in favourite places."]));
+		}
+
+		// Remove place from user
+		$user->removeFavouritePlace($place);
+		try {
+			$user->persist();
+		} catch (\Exception $e) {
+			return $response->setStatusCode(500)
+				->setContent(json_encode(["status" => "error", "message" => "Failed to remove place from favourite places."]));
+		}
+
+		return $response->setStatusCode(200)
+			->setContent(json_encode(["status" => "success"]));
+	}
 }

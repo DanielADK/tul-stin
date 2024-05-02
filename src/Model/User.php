@@ -220,21 +220,32 @@ class User implements PersistableInterface {
 		}
 
 		// Persist favourite places
-		$favouritePlaces = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
-		if (!is_array($favouritePlaces)) {
+		$favouritePlacesInDb = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
+		if (!is_array($favouritePlacesInDb)) {
 			throw new Exception('Failed to get the favourite places.');
 		}
-		$favouritePlacesAssoc = array();
-		foreach ($favouritePlaces as $favourite) {
-			if (!isset($favourite['name'])) {
-				continue;
+		// Convert the favourite places in the object to an associative array
+		$favouritePlacesInObject = [];
+		foreach ($this->favouricePlaces as $place) {
+			$favouritePlacesInObject[$place->getName()] = true;
+		}
+
+		// Remove the places that are in the database but not in the object
+		foreach ($favouritePlacesInDb as $placeInDb) {
+			if (!isset($favouritePlacesInObject[$placeInDb['name']])) {
+				$result = Db::execute('DELETE FROM favourite_places WHERE user = :user AND name = :name', [
+					':user' => $this->username,
+					':name' => $placeInDb['name']
+				]);
+				if (!$result) {
+					throw new Exception('Failed to remove the favourite place.');
+				}
 			}
-			$favouritePlacesAssoc[$favourite['name']] = true;
 		}
 
 		// Persist the favourite places
 		foreach ($this->favouricePlaces as $place) {
-			if (!isset($favouritePlacesAssoc[$place->getName()])) {
+			if (!isset($favouritePlacesInObject[$place->getName()])) {
 				$result = Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :name)', [
 					':user' => $this->username,
 					':name' => $place->getName()
@@ -248,6 +259,7 @@ class User implements PersistableInterface {
 	}
 
 	/**
+	 * @description Deletes the user
 	 * @throws Exception
 	 */
 	public function delete(): void {
@@ -260,4 +272,8 @@ class User implements PersistableInterface {
 		}
 	}
 
+	public function removeFavouritePlace(Place $place): User {
+		$this->favouricePlaces = array_filter($this->favouricePlaces, fn($p) => $p->getName() !== $place->getName());
+		return $this;
+	}
 }

@@ -3,6 +3,7 @@
 namespace StinWeatherApp\Controller\Api;
 
 use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\AbstractController;
 use StinWeatherApp\Services\WeatherFetch\Translators\OpenMeteoTranslator;
 use StinWeatherApp\Services\WeatherFetch\WeatherFetchService;
@@ -53,6 +54,15 @@ class WeatherController extends AbstractController {
 		}
 		$response->setStatusCode(200);
 		$response->setContent($content);
+		return $response;
+	}
+
+	public function options(): Response {
+		$response = new Response("", 200);
+		/** @var Router $GLOBALS ['router']; */
+		$methods = $GLOBALS['router']->getAllowedMethods($this->request->getPath());
+		$methods = array_map(fn($method) => $method->value, $methods);
+		$response->setHeader("Access-Control-Allow-Methods: " . implode(", ", $methods));
 		return $response;
 	}
 }

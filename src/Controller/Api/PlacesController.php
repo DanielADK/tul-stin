@@ -3,6 +3,7 @@
 namespace StinWeatherApp\Controller\Api;
 
 use StinWeatherApp\Component\Http\Response;
+use StinWeatherApp\Component\Router\Router;
 use StinWeatherApp\Controller\AbstractController;
 use StinWeatherApp\Model\Place;
 use StinWeatherApp\Model\User;
@@ -117,5 +118,14 @@ class PlacesController extends AbstractController {
 
 		return $response->setStatusCode(200)
 			->setContent(json_encode(["status" => "success"]));
+	}
+
+	public function options(): Response {
+		$response = new Response("", 200);
+		/** @var Router $GLOBALS ['router']; */
+		$methods = $GLOBALS['router']->getAllowedMethods($this->request->getPath());
+		$methods = array_map(fn($method) => $method->value, $methods);
+		$response->setHeader("Access-Control-Allow-Methods: " . implode(", ", $methods));
+		return $response;
 	}
 }

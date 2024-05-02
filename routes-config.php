@@ -33,6 +33,7 @@ return array(
 	// places
 	new Route(path: "/api/places", controller: ApiPlacesController::class, controllerMethod: "getPlaces", httpMethod: Method::GET, auth: new ApiKeyAuth()),
 	new Route(path: "/api/places", controller: ApiPlacesController::class, controllerMethod: "addPlace", httpMethod: Method::POST, auth: new ApiKeyAuth()),
+	new Route(path: "/api/places", controller: ApiPlacesController::class, controllerMethod: "options", httpMethod: Method::OPTIONS),
 	new Route(path: "/api/places/:city", controller: ApiPlacesController::class, controllerMethod: "removePlace", httpMethod: Method::DELETE, pathStrategy: new ParamPathStrategy(), auth: new ApiKeyAuth()),
 	// forecast
 	new Route("/api/weather", ApiWeatherController::class, "getWeather", Method::GET),

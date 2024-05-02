@@ -110,6 +110,10 @@ class Router {
 			$parsedUrl = parse_url($requestUri);
 			$path = $parsedUrl["path"] ?? '';
 
+			if (str_ends_with($path, '/')) {
+				$path = substr($path, 0, -1);
+			}
+
 			// Find by index
 			$route = $this->getRouteByPath($path, $requestMethod);
 			if ($route instanceof Route) {

@@ -59,7 +59,6 @@ class UserController extends AbstractController {
 		return ($content === false) ? new Response("Failed to encode JSON.", 500) : new Response($content, 200);
 	}
 
-
 	public function options(): Response {
 		$response = new Response("", 200);
 		/** @var Router $GLOBALS ['router']; */

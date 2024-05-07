@@ -1,0 +1,116 @@
+<div class="row mb-3">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the button and input elements
+            let getWeatherButton = document.getElementById('get-weather');
+            let latitudeInput = document.getElementById('latitude');
+            let longitudeInput = document.getElementById('longitude');
+
+            // Function to check the input values and update the button
+            function updateButton() {
+                if (latitudeInput.value && longitudeInput.value) {
+                    // If both inputs are filled, enable the button and change its color to blue
+                    getWeatherButton.disabled = false;
+                    getWeatherButton.className = 'btn btn-primary col-12';
+                    getWeatherButton.innerText = 'Get weather';
+                } else {
+                    // If one of the inputs is empty, disable the button and change its color to red
+                    getWeatherButton.disabled = true;
+                    getWeatherButton.className = 'btn btn-danger col-12';
+                    getWeatherButton.innerText = 'Fill in the latitude and longitude';
+                }
+            }
+
+            // Add event listeners to the input elements
+            latitudeInput.addEventListener('input', updateButton);
+            longitudeInput.addEventListener('input', updateButton);
+
+            // Call the function initially to set the initial button state
+            updateButton();
+
+            // Fetch weather data
+            const temperatureChartData = {
+                labels: [],
+                datasets: [{
+                    label: 'Temperature',
+                    data: [],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+            document.getElementById('get-weather').addEventListener('click', async () => {
+                let date = document.getElementById('date');
+                let lat = document.getElementById('latitude');
+                let lon = document.getElementById('longitude');
+                if (!lat || !lon) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                let url = "/api/weather?latitude=" + lat.value + "&longitude=" + lon.value;
+                if (date) {
+                    url += "&date=" + date.value;
+                }
+                let headers = {}
+                if (document.getElementById('api-code').value) {
+                    headers = {
+                        "Authorization": "Bearer " + document.getElementById('api-code').value
+                    }
+                }
+                await fetch(url, {
+                    method: "GET",
+                    headers: headers
+                }).then(response => response.json()).then(responseData => {
+                    if (responseData["status"] !== "success") {
+                        // If the request fails, show an error message
+                        document.getElementById('bad-response').style.display = 'block';
+                        document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                        return;
+                    }
+                    // Update the chart data
+                    // Translate dates to a more readable format
+                    temperatureChartData.labels = responseData["data"]["times"].map(isoDate => {
+                        let dateParts = isoDate.split("T");
+                        let date = dateParts[0].split("-");
+                        let time = isoDate[1];
+                        return `${date[0]}/${date[1]}/${date[2]} ${time}`;
+                    });
+                    console.log(temperatureChartData)
+                    temperatureChartData.datasets[0].data = responseData["data"]["temperatures"];
+                    // Update data
+                    temperatureChart.update();
+                }).catch(error => {
+                    // If the request fails, show an error message
+                    document.getElementById('bad-response').style.display = 'block';
+                    document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                    console.log(error);
+                });
+            });
+
+            // Draw charts
+            const temperatureChart = new Chart(document.getElementById("temperature"), {
+                type: 'line',
+                data: temperatureChartData,
+                options: {
+                    onClick: (e) => {
+                        const canvasPosition = getRelativePosition(e, temperatureChart);
+
+                        // Substitute the appropriate scale IDs
+                        const dataX = temperatureChart.scales.x.getValueForPixel(canvasPosition.x);
+                        const dataY = temperatureChart.scales.y.getValueForPixel(canvasPosition.y);
+                    }
+                }
+            });
+        });
+    </script>
+    <button class="btn btn-primary col-12" id="get-weather">Get weather</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<div class="row mb-3">
+    <h2 id="date-header"></h2>
+    <div class="col-12">
+        <h2>Temperature</h2>
+        <canvas id="temperature" width="auto" height="200px"></canvas>
+    </div>
+</div>

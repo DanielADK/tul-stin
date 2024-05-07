@@ -16,7 +16,7 @@ use StinWeatherApp\Controller\NotFoundController;
 use StinWeatherApp\Controller\PayController;
 
 return array(
-	new Route("/", HomeController::class, "index"),
+	new Route("", HomeController::class, "index"),
 	new Route("/pay", PayController::class, "paymentForm", Method::GET),
 	new Route("/time", HomeController::class, "time"),
 	new Route("/docs/api", DocsController::class, "api"),

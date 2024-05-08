@@ -71,11 +71,11 @@
                     // Translate dates to a more readable format
                     temperatureChartData.labels = responseData["data"]["times"].map(isoDate => {
                         let dateParts = isoDate.split("T");
-                        let date = dateParts[0].split("-");
-                        let time = isoDate[1];
-                        return `${date[0]}/${date[1]}/${date[2]} ${time}`;
+                        let time = dateParts[1];
+                        return `${time}`;
                     });
-                    console.log(temperatureChartData)
+                    let date = responseData["data"]["times"][0].split("T")[0].split("-");
+                    document.getElementById("temperature-head").innerText = "Temperature on " + date[0] + "/" + date[1] + "/" + date[2];
                     temperatureChartData.datasets[0].data = responseData["data"]["temperatures"];
                     // Update data
                     temperatureChart.update();
@@ -110,7 +110,7 @@
 <div class="row mb-3">
     <h2 id="date-header"></h2>
     <div class="col-12">
-        <h2>Temperature</h2>
+        <h2 id="temperature-head">Temperature</h2>
         <canvas id="temperature" width="auto" height="200px"></canvas>
     </div>
 </div>

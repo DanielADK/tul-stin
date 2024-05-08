@@ -50,7 +50,6 @@ class OpenMeteoTranslator extends Translator {
 	 */
 	#[Override]
 	public function translate(string $data): array {
-		error_log($data);
 		$json = json_decode($data, true);
 		// Is not an array
 		if (!is_array($json)) {

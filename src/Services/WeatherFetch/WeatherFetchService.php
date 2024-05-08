@@ -38,7 +38,6 @@ class WeatherFetchService implements FetchService {
 
 		// Set URL
 		$url = $this->getTranslator()->getFormattedUrl();
-		error_log($url);
 		curl_setopt($ch, CURLOPT_URL, $url);
 
 		// Set the options

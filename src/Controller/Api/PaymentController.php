@@ -38,8 +38,7 @@ class PaymentController extends AbstractController {
 
 		$this->paymentProcessingHandler = new PaymentProcessingHandler(
 			$cardPaymentService,
-			$cashPaymentService,
-			$premiumTransformer
+			$cashPaymentService
 		);
 		$this->premiumPaymentProcessingHandler = new PremiumPaymentProcessingHandler(
 			$premiumTransformer

@@ -10,7 +10,16 @@
             document.addEventListener("DOMContentLoaded", () => {
                 // Add an event listener to the input field
                 document.getElementById('api-code').addEventListener('change', function () {
+                    if (this.value === "") {
+                        document.getElementById('premium').style.display = 'none';
+                        document.getElementById("date-input").value = "";
+                    } else {
+                        document.getElementById('premium').style.display = 'block';
+                    }
+                    updatePlaces();
+                });
                     // Send a request to the server to get the places
+                function updatePlaces() {
                     fetch("/api/places", {
                         method: "GET",
                         headers: {
@@ -19,7 +28,6 @@
                     }).then(response => response.json()).then(data => {
                         // Check if the response is successful
                         if (data["status"] === "success") {
-                            document.getElementById('premium').style.display = 'block';
                             document.getElementById('bad-response').style.display = 'none';
                         } else {
                             document.getElementById('bad-response').style.display = 'block';
@@ -61,7 +69,7 @@
                         document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
                         console.log(error);
                     });
-                });
+                }
 
                 // When a place is selected, fill the latitude and longitude inputs
                 document.getElementById('place-input').addEventListener('change', function () {
@@ -92,7 +100,7 @@
                 weekAfter.setDate(today.getDate() + 7);
 
                 // Get the select element
-                let select = document.getElementById('date-around');
+                let select = document.getElementById('date-input');
 
                 // Create and add the option elements
                 for (let d = new Date(weekBefore); d <= weekAfter; d.setDate(d.getDate() + 1)) {
@@ -130,8 +138,8 @@
                 </select>
             </div>
             <div class="col-12 mb-3">
-                <label class="form-label" for="date-around">Select date:</label>
-                <select class="form-control" id="date-around" name="date"></select>
+                <label class="form-label" for="date-input">Select date:</label>
+                <select class="form-control" id="date-input" name="date"></select>
             </div>
         </div>
     </div>

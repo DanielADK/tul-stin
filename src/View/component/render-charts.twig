@@ -1,32 +1,6 @@
 <div class="row mb-3">
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get the button and input elements
-            let getWeatherButton = document.getElementById('get-weather');
-            let latitudeInput = document.getElementById('latitude');
-            let longitudeInput = document.getElementById('longitude');
-
-            // Function to check the input values and update the button
-            function updateButton() {
-                if (latitudeInput.value && longitudeInput.value) {
-                    // If both inputs are filled, enable the button and change its color to blue
-                    getWeatherButton.disabled = false;
-                    getWeatherButton.className = 'btn btn-primary col-12';
-                    getWeatherButton.innerText = 'Get weather';
-                } else {
-                    // If one of the inputs is empty, disable the button and change its color to red
-                    getWeatherButton.disabled = true;
-                    getWeatherButton.className = 'btn btn-danger col-12';
-                    getWeatherButton.innerText = 'Fill in the latitude and longitude';
-                }
-            }
-
-            // Add event listeners to the input elements
-            latitudeInput.addEventListener('input', updateButton);
-            longitudeInput.addEventListener('input', updateButton);
-
-            // Call the function initially to set the initial button state
-            updateButton();
 
             // Fetch weather data
             const temperatureChartData = {
@@ -40,15 +14,16 @@
                 }]
             }
             document.getElementById('get-weather').addEventListener('click', async () => {
-                let date = document.getElementById('date');
+                let date = document.getElementById('date-input');
                 let lat = document.getElementById('latitude');
                 let lon = document.getElementById('longitude');
-                if (!lat || !lon) {
-                    alert('Please fill in all fields');
+                if (!lat.value || !lon.value) {
+                    document.getElementById('bad-response').style.display = 'block';
+                    document.getElementById('bad-response-text').innerText = "Please fill in the latitude and longitude!"
                     return;
                 }
                 let url = "/api/weather?latitude=" + lat.value + "&longitude=" + lon.value;
-                if (date) {
+                if (date.value !== "") {
                     url += "&date=" + date.value;
                 }
                 let headers = {}
@@ -82,7 +57,7 @@
                 }).catch(error => {
                     // If the request fails, show an error message
                     document.getElementById('bad-response').style.display = 'block';
-                    document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                    document.getElementById('bad-response-text').innerText = "Failed to get weather.";
                     console.log(error);
                 });
             });

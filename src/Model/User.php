@@ -216,7 +216,7 @@ class User implements PersistableInterface {
 
 		// Check if the operation was successful
 		if (!$result) {
-			throw new Exception('Failed to save the user.');
+			throw new Exception('Username already exists.');
 		}
 
 		// Persist favourite places

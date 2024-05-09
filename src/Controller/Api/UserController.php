@@ -22,7 +22,7 @@ class UserController extends AbstractController {
 		try {
 			$user->persist();
 		} catch (\Exception $e) {
-			$content = json_encode(["status" => $e->getMessage()]);
+			$content = json_encode(["status" => "User creation failed. Username already exists."]);
 			return ($content === false) ? new Response("Failed to encode JSON.", 500) : new Response($content, 500);
 		}
 		$content = json_encode(["status" => "User created."]);

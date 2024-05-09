@@ -22,15 +22,17 @@ class Request {
 	private array $get;
 	/** @var string $rawBody */
 	private string $rawBody;
+	private string $httpAuthorization;
 
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$parsedPath = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
-		$this->path = is_string($parsedPath) ? $parsedPath : '';
+		$this->setPath(is_string($parsedPath) ? $parsedPath : '');
 		$this->body = $this->method === 'POST' ? $_POST : $_GET;
 		$this->post = $_POST;
 		$this->get = $_GET;
 		$this->rawBody = file_get_contents('php://input');
+		$this->httpAuthorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
 		// Parse headers
 		$this->headers = array();
@@ -107,5 +109,21 @@ class Request {
 	 */
 	public function getRawBody(): string {
 		return $this->rawBody;
+	}
+
+	/**
+	 * @description Returns the HTTP authorization header
+	 *
+	 * @return string
+	 */
+	public function getHttpAuthorization(): string {
+		return $this->httpAuthorization;
+	}
+
+	private function setPath(string $path): void {
+		if (str_ends_with($path, '/')) {
+			$path = substr($path, 0, -1);
+		}
+		$this->path = $path;
 	}
 }

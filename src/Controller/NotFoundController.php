@@ -12,6 +12,6 @@ use StinWeatherApp\Component\Http\Response;
  */
 final class NotFoundController extends AbstractController {
 	public function index(): Response {
-		return new Response("Page not found", 404);
+		return new Response("", 404);
 	}
 }

@@ -1,0 +1,155 @@
+<div class="row mt-3">
+    <h2>Get information about weather!</h2>
+    <div class="row mb-3">
+        <div class="col-12">
+            <label class="form-label" for="api-code">Enter API code for premium access:</label>
+            <input class="form-control" type="text" id="api-code" name="api-code" required>
+        </div>
+        <!-- Script to get the places -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                // Add an event listener to the input field
+                document.getElementById('api-code').addEventListener('change', function () {
+                    if (this.value === "") {
+                        document.getElementById('premium').style.display = 'none';
+                        document.getElementById("date-input").value = "";
+                    } else {
+                        document.getElementById('premium').style.display = 'block';
+                    }
+                    updatePlaces();
+                });
+                    // Send a request to the server to get the places
+                function updatePlaces() {
+                    fetch("/api/places", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": "Bearer " + document.getElementById('api-code').value
+                        },
+                    }).then(response => response.json()).then(data => {
+                        // Check if the response is successful
+                        if (data["status"] === "success") {
+                            document.getElementById('bad-response').style.display = 'none';
+                        } else {
+                            document.getElementById('bad-response').style.display = 'block';
+                            if (data["description"] === "Unauthorized") {
+                                document.getElementById('bad-response-text').innerText = "Invalid API code!";
+                            } else {
+                                document.getElementById('bad-response-text').innerText = data["description"];
+                            }
+                            return;
+                        }
+                        data = data["places"];
+                        let select = document.getElementById('place-input');
+                        // Clear the select options
+                        select.innerHTML = '';
+                        // Default option
+                        let defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.innerText = 'Select place';
+                        defaultOption.selected = true;
+                        defaultOption.dataset.latitude = '';
+                        defaultOption.dataset.longitude = '';
+                        select.appendChild(defaultOption);
+                        // Iterate over the places
+                        data.forEach(place => {
+                            // Create an option element for each place
+                            let option = document.createElement('option');
+                            option.value = place.name;
+                            option.innerText = place.name.charAt(0).toUpperCase();
+                            option.innerText += place.name.slice(1) + " (" + place.latitude + ", " + place.longitude + ")";
+                            // Store the latitude and longitude in the dataset
+                            option.dataset.latitude = place.latitude;
+                            option.dataset.longitude = place.longitude;
+                            // Append the option to the select
+                            select.appendChild(option);
+                        });
+                    }).catch(error => {
+                        // If the request fails, show an error message
+                        document.getElementById('bad-response').style.display = 'block';
+                        document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                        console.log(error);
+                    });
+                }
+
+                // When a place is selected, fill the latitude and longitude inputs
+                document.getElementById('place-input').addEventListener('change', function () {
+                    let selectedOption = this.options[this.selectedIndex];
+                    document.getElementById('latitude').value = selectedOption.dataset.latitude;
+                    document.getElementById('longitude').value = selectedOption.dataset.longitude;
+                });
+
+                // When the latitude or longitude input is changed, deselect the place
+                document.getElementById('latitude').addEventListener('input', function () {
+                    if (document.getElementById("api-code").innerText === "") {
+                        return;
+                    }
+                    document.getElementById('place').selectedIndex = -1;
+                });
+                document.getElementById('longitude').addEventListener('input', function () {
+                    if (document.getElementById("api-code").innerText === "") {
+                        return;
+                    }
+                    document.getElementById('place').selectedIndex = -1;
+                });
+
+                // Date range selector
+                const today = new Date('{{ today }}');
+                let weekBefore = new Date();
+                weekBefore.setDate(today.getDate() - 7);
+                let weekAfter = new Date();
+                weekAfter.setDate(today.getDate() + 7);
+
+                // Get the select element
+                let select = document.getElementById('date-input');
+
+                // Create and add the option elements
+                for (let d = new Date(weekBefore); d <= weekAfter; d.setDate(d.getDate() + 1)) {
+                    let option = document.createElement('option');
+                    option.value = d.toISOString().split('T')[0]; // Format the date in 'yyyy-mm-dd' format
+                    option.innerText = d.toDateString();
+                    if (d.toDateString() === today.toDateString()) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
+
+
+            });
+        </script>
+    </div>
+    <!-- Select place -->
+    <div class="row mb-3">
+        <div class="col-6">
+            <h2 class="col-12">Select place</h2>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="latitude">Latitude:</label>
+                <input class="form-control" type="text" id="latitude" name="latitude">
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="longitude">Longitude:</label>
+                <input class="form-control" type="text" id="longitude" name="longitude">
+            </div>
+        </div>
+        <div class="col-6" style="display: none;" id="premium">
+            <h2 class="col-12">Premium functions</h2>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="place-input">Select place:</label>
+                <select class="form-control" id="place-input" name="place">
+                </select>
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="date-input">Select date:</label>
+                <select class="form-control" id="date-input" name="date"></select>
+            </div>
+        </div>
+    </div>
+    <!-- ALERT -->
+    <div class="row mb-3" style="display: none;" id="bad-response">
+        <div class="col-12">
+            <div class="alert alert-danger" id="bad-response-text" role="alert">
+                Api
+            </div>
+        </div>
+    </div>
+    {% include "component/render-charts.twig" %}
+</div>

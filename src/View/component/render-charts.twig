@@ -1,0 +1,91 @@
+<div class="row mb-3">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Fetch weather data
+            const temperatureChartData = {
+                labels: [],
+                datasets: [{
+                    label: 'Temperature',
+                    data: [],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+            document.getElementById('get-weather').addEventListener('click', async () => {
+                let date = document.getElementById('date-input');
+                let lat = document.getElementById('latitude');
+                let lon = document.getElementById('longitude');
+                if (!lat.value || !lon.value) {
+                    document.getElementById('bad-response').style.display = 'block';
+                    document.getElementById('bad-response-text').innerText = "Please fill in the latitude and longitude!"
+                    return;
+                }
+                let url = "/api/weather?latitude=" + lat.value + "&longitude=" + lon.value;
+                if (date.value !== "") {
+                    url += "&date=" + date.value;
+                }
+                let headers = {}
+                if (document.getElementById('api-code').value) {
+                    headers = {
+                        "Authorization": "Bearer " + document.getElementById('api-code').value
+                    }
+                }
+                await fetch(url, {
+                    method: "GET",
+                    headers: headers
+                }).then(response => response.json()).then(responseData => {
+                    if (responseData["status"] !== "success") {
+                        // If the request fails, show an error message
+                        document.getElementById('bad-response').style.display = 'block';
+                        document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                        return;
+                    }
+                    // Update the chart data
+                    // Translate dates to a more readable format
+                    temperatureChartData.labels = responseData["data"]["times"].map(isoDate => {
+                        let dateParts = isoDate.split("T");
+                        let time = dateParts[1];
+                        return `${time}`;
+                    });
+                    let date = responseData["data"]["times"][0].split("T")[0].split("-");
+                    document.getElementById("temperature-head").innerText = "Temperature on " + date[0] + "/" + date[1] + "/" + date[2];
+                    temperatureChartData.datasets[0].data = responseData["data"]["temperatures"];
+                    // Update data
+                    temperatureChart.update();
+                }).catch(error => {
+                    // If the request fails, show an error message
+                    document.getElementById('bad-response').style.display = 'block';
+                    document.getElementById('bad-response-text').innerText = "Failed to get weather.";
+                    console.log(error);
+                });
+            });
+
+            // Draw charts
+            const temperatureChart = new Chart(document.getElementById("temperature"), {
+                type: 'line',
+                data: temperatureChartData,
+                options: {
+                    onClick: (e) => {
+                        const canvasPosition = getRelativePosition(e, temperatureChart);
+
+                        // Substitute the appropriate scale IDs
+                        const dataX = temperatureChart.scales.x.getValueForPixel(canvasPosition.x);
+                        const dataY = temperatureChart.scales.y.getValueForPixel(canvasPosition.y);
+                    }
+                }
+            });
+        });
+    </script>
+    <button class="btn btn-primary col-12" id="get-weather">Get weather</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<div class="row mb-3">
+    <h2 id="date-header"></h2>
+    <div class="col-12">
+        <h2 id="temperature-head">Temperature</h2>
+        <canvas id="temperature" width="auto" height="200px"></canvas>
+    </div>
+</div>

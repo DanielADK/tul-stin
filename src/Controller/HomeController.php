@@ -19,7 +19,7 @@ final class HomeController extends AbstractController {
 	 * @throws Exception
 	 */
 	public function index(): Response {
-		return $this->render("index", ["helloworld" => "Zdravím světe!!"]);
+		return $this->render("index", ["required_price" => "1000 CZK", "today" => (new DateTime())->format("Y-m-d")]);
 	}
 
 	/**

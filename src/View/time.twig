@@ -1,1 +1,6 @@
-Dneska je {{ date|date('d.m.Y') }} a je {{ date|date('H:i:s') }}.
+{% extends "template.twig" %}
+
+{% block content %}
+    <h1>Actual date & time</h1>
+    <p>Actual date: {{ date|date('d.m.Y') }} and time: {{ date|date('H:i:s') }}.</p>
+{% endblock %}

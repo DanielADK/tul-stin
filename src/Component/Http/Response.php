@@ -10,11 +10,12 @@ class Response {
 
 	/**
 	 * Constructor of response
-	 * @param string $content
+	 *
+	 * @param string|false $content
 	 * @param int    $statusCode
 	 * @param array<string>  $headers
 	 */
-	public function __construct(string $content = "", int $statusCode = 200, array $headers = array()) {
+	public function __construct(string|false $content = "", int $statusCode = 200, array $headers = array()) {
 		$this->setContent($content);
 		$this->setStatusCode($statusCode);
 		foreach ($headers as $header) {
@@ -43,8 +44,13 @@ class Response {
 		return $this->headers;
 	}
 
-	public function setContent(string $content): void {
+	public function setContent(string|false $content): Response {
+		if ($content === false) {
+			$this->content = "";
+			return $this;
+		}
 		$this->content = $content;
+		return $this;
 	}
 
 	public function getContent(): string {

@@ -13,6 +13,8 @@ class User implements PersistableInterface {
 	private string $username;
 	private ?string $apiKey = null;
 	private ?DateTime $premiumUntil = null;
+	/** @var array<Place> */
+	private array $favouricePlaces = array();
 
 	public function __construct(?int $id, string $username) {
 		$this->id = $id;
@@ -35,6 +37,19 @@ class User implements PersistableInterface {
 
 	public function getUsername(): string {
 		return $this->username;
+	}
+
+	public function addFavouritePlace(Place $place): User {
+		$this->favouricePlaces[] = $place;
+		return $this;
+	}
+
+	/**
+	 * @description Returns the favourite places
+	 * @return array<Place>
+	 */
+	public function getFavouritePlaces(): array {
+		return $this->favouricePlaces;
 	}
 
 	/**
@@ -108,20 +123,33 @@ class User implements PersistableInterface {
 
 	/**
 	 * @param int|string $id
-	 *
 	 * @return ?User
 	 */
 	#[\Override]
 	public static function getById(int|string $id): ?User {
 		$result = Db::queryOne("SELECT * FROM user WHERE id = ?", [$id]);
-		$user = (!$result) ? null : self::parseFromArray($result);
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $id]);
+		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
+		// If non-null, validate the user's premium status
+		$user?->validatePremium();
+
+		return $user;
+	}
+
+	public static function getByApiKey(string $apiKey): ?User {
+		$result = Db::queryOne("SELECT * FROM user WHERE api_key = ?", [$apiKey]);
+		if (!isset($result['username'])) {
+			return null;
+		}
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['username']]);
+		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();
 		return $user;
 	}
 
 	/**
-	 * @param array<string, string> $array
+	 * @param array<string, string|array<string>> $array
 	 */
 	private static function parseFromArray(array $array): User {
 		$user = new User((int)$array['id'], $array['username']);
@@ -133,6 +161,17 @@ class User implements PersistableInterface {
 				$user->setPremiumUntil(new DateTime($array['premium_until']));
 			} catch (Exception $e) {
 				$user->setPremiumUntil(null);
+			}
+		}
+
+		// Parse favourites
+		if (!array_key_exists('favourites', $array) || !is_array($array['favourites'])) {
+			return $user;
+		}
+		foreach ($array["favourites"] as $favourite) {
+			$place = Place::getById($favourite['name']);
+			if ($place) {
+				$user->addFavouritePlace($place);
 			}
 		}
 		return $user;
@@ -176,12 +215,65 @@ class User implements PersistableInterface {
 		}
 
 		// Check if the operation was successful
-		if ($result) {
-			return true;
-		} else {
+		if (!$result) {
 			throw new Exception('Failed to save the user.');
 		}
 
+		// Persist favourite places
+		$favouritePlacesInDb = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
+		if (!is_array($favouritePlacesInDb)) {
+			throw new Exception('Failed to get the favourite places.');
+		}
+		// Convert the favourite places in the object to an associative array
+		$favouritePlacesInObject = [];
+		foreach ($this->favouricePlaces as $place) {
+			$favouritePlacesInObject[$place->getName()] = true;
+		}
+
+		// Remove the places that are in the database but not in the object
+		foreach ($favouritePlacesInDb as $placeInDb) {
+			if (!isset($favouritePlacesInObject[$placeInDb['name']])) {
+				$result = Db::execute('DELETE FROM favourite_places WHERE user = :user AND name = :name', [
+					':user' => $this->username,
+					':name' => $placeInDb['name']
+				]);
+				if (!$result) {
+					throw new Exception('Failed to remove the favourite place.');
+				}
+			}
+		}
+
+		// Persist the favourite places
+		foreach ($this->favouricePlaces as $place) {
+			if (!isset($favouritePlacesInObject[$place->getName()])) {
+				$result = Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :name)', [
+					':user' => $this->username,
+					':name' => $place->getName()
+				]);
+				if (!$result) {
+					throw new Exception('Failed to save the favourite place.');
+				}
+			}
+		}
+		return true;
 	}
 
+	/**
+	 * @description Deletes the user
+	 * @throws Exception
+	 */
+	public function delete(): void {
+		if (!$this->id) {
+			throw new Exception('Cannot delete user without id.');
+		}
+		$result = Db::execute('DELETE FROM user WHERE id = :id', [":id" => $this->id]);
+		if (!$result) {
+			throw new Exception('Failed to delete the user.');
+		}
+	}
+
+	public function removeFavouritePlace(Place $place): User {
+		$this->favouricePlaces = array_filter($this->favouricePlaces, fn($p) => $p->getName() !== $place->getName());
+		return $this;
+	}
 }

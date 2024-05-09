@@ -2,6 +2,7 @@
 namespace StinWeatherApp\Component\Database;
 
 use DateTime;
+use Exception;
 use PDO;
 
 abstract class Db {
@@ -27,6 +28,7 @@ abstract class Db {
 	 * @param array<string, int|float|string|DateTime> $params
 	 *
 	 * @return array<string, int|float|string>
+	 * @throws Exception
 	 */
 	private static function processParameters(array $params = array()): array {
 		$new_params = array();
@@ -46,6 +48,7 @@ abstract class Db {
 	 * @param array<string, int|float|string> $params
 	 *
 	 * @return mixed
+	 * @throws Exception
 	 */
 	public static function queryOne(string $query, array $params = array()): mixed {
 		$ret = self::$connection->prepare($query);
@@ -61,6 +64,7 @@ abstract class Db {
 	 * @param array<string, int|float|string> $params
 	 *
 	 * @return false|array<string, mixed>
+	 * @throws Exception
 	 */
 	public static function queryAll(string $query, array $params = array()): false|array {
 		$ret = self::$connection->prepare($query);
@@ -76,6 +80,7 @@ abstract class Db {
 	 * @param array<string, int|float|string|DateTime> $params
 	 *
 	 * @return mixed
+	 * @throws Exception
 	 */
 	public static function queryCell(string $query, array $params = array()): mixed {
 		$params = self::processParameters($params);
@@ -90,6 +95,7 @@ abstract class Db {
 	 * @param array<string, int> $params
 	 *
 	 * @return int
+	 * @throws Exception
 	 */
 	public static function queryRowCount(string $query, array $params = array()): int {
 		$ret = self::$connection->prepare($query);
@@ -99,12 +105,13 @@ abstract class Db {
 	}
 
 	/**
-	 * Execute query and return succcess
+	 * Execute query and return success
 	 *
 	 * @param string                                   $query
 	 * @param array<string, int|float|string|DateTime> $params
 	 *
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function execute(string $query, array $params = array()): bool {
 		$ret = self::$connection->prepare($query);

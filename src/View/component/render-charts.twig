@@ -54,6 +54,8 @@
                     temperatureChartData.datasets[0].data = responseData["data"]["temperatures"];
                     // Update data
                     temperatureChart.update();
+                    // Update the text
+                    updateText(responseData);
                 }).catch(error => {
                     // If the request fails, show an error message
                     document.getElementById('bad-response').style.display = 'block';
@@ -61,6 +63,19 @@
                     console.log(error);
                 });
             });
+
+            function updateText(responseData) {
+                let where = document.getElementById("temperature-text");
+                where.innerHTML = "";
+                for (let i = 0; i < responseData["data"]["times"].length; i++) {
+                    let date = responseData["data"]["times"][i].split("T")[0].split("-");
+                    let time = responseData["data"]["times"][i].split("T")[1];
+                    let temperature = responseData["data"]["temperatures"][i];
+                    let text = document.createElement("p");
+                    text.innerText = `${time}: ${temperature}°C`;
+                    where.appendChild(text);
+                }
+            }
 
             // Draw charts
             const temperatureChart = new Chart(document.getElementById("temperature"), {
@@ -84,8 +99,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <div class="row mb-3">
     <h2 id="date-header"></h2>
-    <div class="col-12">
+    <div class="col-10">
         <h2 id="temperature-head">Temperature</h2>
         <canvas id="temperature" width="auto" height="200px"></canvas>
     </div>
+    <div class="col-2" id="temperature-text"></div>
 </div>

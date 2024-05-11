@@ -73,6 +73,7 @@ class Place implements PersistableInterface {
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public function persist(): bool {
 		$data = [

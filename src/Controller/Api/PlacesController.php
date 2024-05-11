@@ -65,6 +65,7 @@ class PlacesController extends AbstractController {
 
 		// Check if the user already has this place in favourite places
 		$favouritePlaces = $user->getFavouritePlaces();
+		error_log(json_encode($favouritePlaces));
 		foreach ($favouritePlaces as $favouritePlace) {
 			if ($favouritePlace->getName() === $place->getName()) {
 				return $response->setStatusCode(400)
@@ -77,6 +78,7 @@ class PlacesController extends AbstractController {
 		try {
 			$user->persist();
 		} catch (\Exception $e) {
+			error_log($e->getMessage());
 			return $response->setStatusCode(500)
 				->setContent(json_encode(["status" => "error", "message" => "Failed to add place to favourite places."]));
 		}

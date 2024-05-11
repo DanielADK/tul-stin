@@ -141,7 +141,7 @@ class User implements PersistableInterface {
 		if (!isset($result['username'])) {
 			return null;
 		}
-		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['username']]);
+		$favourites = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $result['id']]);
 		$user = (!$result) ? null : self::parseFromArray($result + ['favourites' => $favourites]);
 		// If non-null, validate the user's premium status
 		$user?->validatePremium();
@@ -218,12 +218,16 @@ class User implements PersistableInterface {
 		if (!$result) {
 			throw new Exception('Username already exists.');
 		}
+		error_log("input places in object: " . json_encode($this->favouricePlaces));
 
 		// Persist favourite places
-		$favouritePlacesInDb = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->username]);
+		$favouritePlacesInDb = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->getId()]);
 		if (!is_array($favouritePlacesInDb)) {
 			throw new Exception('Failed to get the favourite places.');
 		}
+		// Convert the favourite places in the Db
+		$favouritePlacesInDb = array_column($favouritePlacesInDb, null, 'name');
+
 		// Convert the favourite places in the object to an associative array
 		$favouritePlacesInObject = [];
 		foreach ($this->favouricePlaces as $place) {
@@ -234,7 +238,7 @@ class User implements PersistableInterface {
 		foreach ($favouritePlacesInDb as $placeInDb) {
 			if (!isset($favouritePlacesInObject[$placeInDb['name']])) {
 				$result = Db::execute('DELETE FROM favourite_places WHERE user = :user AND name = :name', [
-					':user' => $this->username,
+					':user' => $this->getId(),
 					':name' => $placeInDb['name']
 				]);
 				if (!$result) {
@@ -245,9 +249,9 @@ class User implements PersistableInterface {
 
 		// Persist the favourite places
 		foreach ($this->favouricePlaces as $place) {
-			if (!isset($favouritePlacesInObject[$place->getName()])) {
+			if (!isset($favouritePlacesInDb[$place->getName()])) {
 				$result = Db::execute('INSERT INTO favourite_places (user, name) VALUES (:user, :name)', [
-					':user' => $this->username,
+					':user' => $this->getId(),
 					':name' => $place->getName()
 				]);
 				if (!$result) {

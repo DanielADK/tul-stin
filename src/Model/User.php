@@ -218,7 +218,6 @@ class User implements PersistableInterface {
 		if (!$result) {
 			throw new Exception('Username already exists.');
 		}
-		error_log("input places in object: " . json_encode($this->favouricePlaces));
 
 		// Persist favourite places
 		$favouritePlacesInDb = Db::queryAll('SELECT * FROM favourite_places WHERE user = :user', [':user' => $this->getId()]);

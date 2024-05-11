@@ -42,4 +42,24 @@ class JsonPremiumPaymentParserTest extends TestCase {
 		$json = 'not valid json';
 		$this->parser->parse($json);
 	}
+
+	public function testParseThrowsExceptionInvalidCardData(): void {
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage('Invalid card data.');
+
+		$json = '{"username":"test","premiumOption":"option1","paymentType":"card"}';
+		$this->parser->parse($json);
+	}
+
+	public function testParseThrowsExceptionMissingRequiredKey(): void {
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage('Missing required key');
+		// Missing cardVerification
+		$json = '{"username":"test", "premiumOption":"option1","paymentType":"card","card":{"cardNumber":"1234567890123456","cardExpiration":"12/23"}}';
+
+
+		$this->parser->parse($json);
+	}
+
 }

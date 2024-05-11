@@ -82,10 +82,8 @@ class Place implements PersistableInterface {
 			"longitude" => $this->longitude
 		];
 
-		return Db::execute("INSERT INTO place (name, latitude, longitude)
-							        SELECT * FROM (SELECT :name as name, :latitude as latitude, :longitude as longitude) AS tmp
-							        WHERE NOT EXISTS (
-							            SELECT name FROM place WHERE name = :name
-							        ) LIMIT 1", $data);
+		$result = Db::execute("INSERT INTO place (name, latitude, longitude)
+    								  VALUES (:name, :latitude, :longitude)", $data);
+		return $result;
 	}
 }

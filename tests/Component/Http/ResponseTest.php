@@ -63,4 +63,10 @@ class ResponseTest extends TestCase {
 		$this->assertContains('Content-Type: application/json', $response->getHeader());
 		$this->assertContains('Authorization: Bearer token', $response->getHeader());
 	}
+
+	public function testSetContentWithFalse(): void {
+		$response = new Response();
+		$response->setContent(false);
+		$this->assertEquals("", $response->getContent());
+	}
 }

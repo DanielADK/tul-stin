@@ -23,7 +23,7 @@ class WeatherFetchService implements FetchService {
 	 * @inheritDoc
 	 * @throws Exception
 	 */
-	public function processData(): string {
+	public function processData(): array {
 		$response = $this->fetch();
 		return $this->getTranslator()->translate($response);
 	}

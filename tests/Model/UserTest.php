@@ -3,12 +3,13 @@
 namespace Model;
 
 use DateTime;
+use Exception;
 use phpmock\phpunit\PHPMock;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Random\RandomException;
 use StinWeatherApp\Component\Database\Db;
 use StinWeatherApp\Component\Database\SQLiteConnectionBuilder;
+use StinWeatherApp\Model\Place;
 use StinWeatherApp\Model\User;
 
 class UserTest extends TestCase {
@@ -188,5 +189,83 @@ class UserTest extends TestCase {
 
 		// Assert that premiumUntil is null
 		$this->assertNull($user->getPremiumUntil());
+	}
+
+	public function testUserByApiKey(): void {
+		// Define the result array
+		$now = new DateTime();
+		$now->modify('+1 month');
+		$data = [
+			'username' => 'test',
+			'api_key' => 'test_key',
+			'premium_until' => $now->format("Y-m-d"),
+		];
+
+		Db::execute("INSERT INTO user (username, api_key, premium_until) VALUES (:username, :api_key, :premium_until)", $data);
+
+		$user = User::getByApiKey($data["api_key"]);
+
+		$this->assertInstanceOf(User::class, $user);
+		$this->assertEquals($data["username"], $user->getUsername());
+		$this->assertEquals($data["api_key"], $user->getApiKey());
+	}
+
+	public function testPersistFavouritePlaces(): void {
+		// Create a new user
+		$user = new User(null, 'TestUser');
+
+		// Create a new place and add it to the user's favourite places
+		$place = new Place('Test Place', 50.0874654, 14.4212535);
+		$place->persist();
+		$user->addFavouritePlace($place);
+
+		// Persist the user
+		$user->persist();
+
+		// Retrieve the user from the database
+		$persistedUser = User::getById($user->getId());
+
+		// Check that the favourite place was persisted correctly
+		$this->assertCount(1, $persistedUser->getFavouritePlaces());
+		$this->assertEquals($place, $persistedUser->getFavouritePlaces()[0]);
+	}
+
+	public function testRemoveFavouritePlace(): void {
+		// Create a new user
+		$user = new User(null, 'TestUser');
+
+		// Create a new place and add it to the user's favourite places
+		$place = new Place('Test Place', 50.0874654, 14.4212535);
+		$user->addFavouritePlace($place);
+
+		// Persist the user
+		$user->persist();
+
+		// Remove the favourite place
+		$user->removeFavouritePlace($place);
+		$user->persist();
+
+		// Retrieve the user from the database
+		$persistedUser = User::getById($user->getId());
+
+		// Check that the favourite place was removed correctly
+		$this->assertCount(0, $persistedUser->getFavouritePlaces());
+	}
+
+	public function testUserCanBeDeletedSuccessfully(): void {
+		$user = new User(null, 'TestUser');
+		$user->persist();
+
+		$user->delete();
+
+		$this->assertNull(User::getById($user->getId()));
+	}
+
+	public function testDeletingNonPersistedUserThrowsException(): void {
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Cannot delete user without id.');
+
+		$user = new User(null, 'TestUser');
+		$user->delete();
 	}
 }

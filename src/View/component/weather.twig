@@ -11,10 +11,7 @@
                 // Add an event listener to the input field
                 document.getElementById('api-code').addEventListener('change', function () {
                     if (this.value === "") {
-                        document.getElementById('premium').style.display = 'none';
                         document.getElementById("date-input").value = "";
-                    } else {
-                        document.getElementById('premium').style.display = 'block';
                     }
                     updatePlaces();
                 });
@@ -28,8 +25,10 @@
                     }).then(response => response.json()).then(data => {
                         // Check if the response is successful
                         if (data["status"] === "success") {
+                            document.getElementById('premium').style.display = 'block';
                             document.getElementById('bad-response').style.display = 'none';
                         } else {
+                            document.getElementById('premium').style.display = 'none';
                             document.getElementById('bad-response').style.display = 'block';
                             if (data["description"] === "Unauthorized") {
                                 document.getElementById('bad-response-text').innerText = "Invalid API code!";
@@ -113,6 +112,44 @@
                     select.appendChild(option);
                 }
 
+                // Add an event listener to the new place button
+                document.getElementById('new-date-btn').addEventListener('click', function () {
+                    // Get the values
+                    let name = document.getElementById('new-place').value;
+                    let latitude = document.getElementById('latitude').value;
+                    let longitude = document.getElementById('longitude').value;
+                    let apiKey = document.getElementById('api-code').value;
+
+                    // Create the JSON object
+                    let data = {
+                        name: name,
+                        latitude: latitude,
+                        longitude: longitude
+                    };
+
+                    // Send the POST request
+                    fetch('/api/places', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + apiKey
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => response.json()).then(data => {
+                        // Handle the response
+                        if (data.status === 'success') {
+                            // Update the places
+                            updatePlaces();
+                        } else {
+                            document.getElementById('bad-response').style.display = 'block';
+                            document.getElementById('bad-response-text').innerText = "Failed to save place.";
+                        }
+                    }).catch(error => {
+                        document.getElementById('bad-response').style.display = 'block';
+                        document.getElementById('bad-response-text').innerText = "Failed to get the places! Please contact administrator.";
+                        console.log(error);
+                    });
+                });
 
             });
         </script>
@@ -134,12 +171,18 @@
             <h2 class="col-12">Premium functions</h2>
             <div class="col-12 mb-3">
                 <label class="form-label" for="place-input">Select place:</label>
-                <select class="form-control" id="place-input" name="place">
-                </select>
+                <select class="form-control" id="place-input" name="place"></select>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="date-input">Select date:</label>
                 <select class="form-control" id="date-input" name="date"></select>
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="new-place">Save place as:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Name of place" id="new-place">
+                    <button class="btn btn-success" type="button" id="new-date-btn">Save</button>
+                </div>
             </div>
         </div>
     </div>

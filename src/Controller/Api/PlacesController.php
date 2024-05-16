@@ -60,7 +60,12 @@ class PlacesController extends AbstractController {
 			$place = new Place(name: $data["name"],
 				latitude: (float)$data["latitude"],
 				longitude: (float)$data["longitude"]);
-			$place->persist();
+			try {
+				$place->persist();
+			} catch (\Exception $e) {
+				return $response->setStatusCode(500)
+					->setContent(json_encode(["status" => "error", "message" => "Place already exists."]));
+			}
 		}
 
 		// Check if the user already has this place in favourite places
@@ -77,6 +82,7 @@ class PlacesController extends AbstractController {
 		try {
 			$user->persist();
 		} catch (\Exception $e) {
+			error_log($e->getMessage());
 			return $response->setStatusCode(500)
 				->setContent(json_encode(["status" => "error", "message" => "Failed to add place to favourite places."]));
 		}

@@ -18,7 +18,7 @@ interface FetchService {
 
 	/**
 	 * @description Processes the weather data
-	 * @return string
+	 * @return array
 	 */
-	public function processData(): string;
+	public function processData(): array;
 }

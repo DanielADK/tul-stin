@@ -7,43 +7,84 @@ use PHPUnit\Framework\TestCase;
 use StinWeatherApp\Services\WeatherFetch\Translators\OpenMeteoTranslator;
 
 class OpenMeteoTranslatorTest extends TestCase {
-	public function testOpenMeteoTranslatorTranslatesDataSuccessfully(): void {
-		$data = '{"hourly":{"time":["00:00","01:00"],"temperature_2m":["-1.2","-1.3"]},"generationtime_ms":"0.1"}';
-		$expectedResult = [
-			'times' => ["00:00", "01:00"],
-			'temperatures' => ["-1.2", "-1.3"],
-			'generationtime_ms' => "0.1"
+	private OpenMeteoTranslator $translator;
+
+	protected function setUp(): void {
+		$day = '2024-05-16';
+		$longitude = '14.42076';
+		$latitude = '50.08804';
+		$this->translator = new OpenMeteoTranslator($day, $longitude, $latitude);
+	}
+
+	public function testConstructorSetsParameters(): void {
+		$params = $this->translator->getParameters();
+		$this->assertEquals('2024-05-16', $params['start_date']);
+		$this->assertEquals('2024-05-16', $params['end_date']);
+		$this->assertEquals('14.42076', $params['longitude']);
+		$this->assertEquals('50.08804', $params['latitude']);
+		$this->assertEquals('temperature_2m', $params['hourly']);
+	}
+
+	public function testConstructorSetsExpectedKeys(): void {
+		$expectedKeys = [
+			"hourly.time",
+			"hourly.temperature_2m",
+			"generationtime_ms"
+		];
+		$this->assertEquals($expectedKeys, $this->translator->getExpectedKeys());
+	}
+
+	public function testConstructorSetsTranslationKeys(): void {
+		$translationKeys = [
+			"hourly.time" => "times",
+			"hourly.temperature_2m" => "temperatures",
+			"hourly_units.time" => "time_format",
+			"hourly_units.temperature_2m" => "temperature_unit"
+		];
+		$this->assertEquals($translationKeys, $this->translator->getTranslationKeys());
+	}
+
+	public function testTranslateReturnsTranslatedData(): void {
+		$data = json_encode([
+			"hourly" => [
+				"time" => ["2024-05-16T00:00:00Z"],
+				"temperature_2m" => [15.5]
+			],
+			"hourly_units" => [
+				"time" => "iso8601",
+				"temperature_2m" => "°C"
+			],
+			"generationtime_ms" => 15
+		]);
+
+		$expected = [
+			"times" => ["2024-05-16T00:00:00Z"],
+			"temperatures" => [15.5],
+			"time_format" => "iso8601",
+			"temperature_unit" => "°C"
 		];
 
-		$translator = $this->createMock(OpenMeteoTranslator::class);
-		$translator->method('translate')->willReturn($expectedResult);
-
-		$result = $translator->translate($data);
-
-		$this->assertEquals($expectedResult, $result);
+		$this->assertEquals($expected, $this->translator->translate($data));
 	}
 
-	public function testOpenMeteoTranslatorThrowsExceptionWhenDataCannotBeDecoded(): void {
+	public function testTranslateThrowsExceptionOnInvalidJson(): void {
 		$this->expectException(Exception::class);
-		$this->expectExceptionMessage('Failed to decode JSON.');
+		$this->expectExceptionMessage("Failed to decode JSON.");
 
-		$data = 'INVALID_DATA';
-
-		$translator = $this->createMock(OpenMeteoTranslator::class);
-		$translator->method('translate')->willThrowException(new Exception('Failed to decode JSON.'));
-
-		$translator->translate($data);
+		$invalidJson = "invalid json";
+		$this->translator->translate($invalidJson);
 	}
 
-	public function testOpenMeteoTranslatorThrowsExceptionWhenExpectedKeysAreMissing(): void {
+	public function testTranslateThrowsExceptionOnMissingExpectedKeys(): void {
+		$data = json_encode([
+			"hourly" => [
+				"temperature_2m" => [15.5]
+			]
+		]);
+
 		$this->expectException(Exception::class);
-		$this->expectExceptionMessage('Expected key missing.');
+		$this->expectExceptionMessage("Key not found: hourly.time");
 
-		$data = '{"hourly":{"time":["00:00","01:00"]},"generationtime_ms":"0.1"}'; // temperature_2m key is missing
-
-		$translator = $this->createMock(OpenMeteoTranslator::class);
-		$translator->method('translate')->willThrowException(new Exception('Expected key missing.'));
-
-		$translator->translate($data);
+		$this->translator->translate($data);
 	}
 }

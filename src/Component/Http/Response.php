@@ -23,16 +23,29 @@ class Response {
 		}
 	}
 
+	/**
+	 * Sets the response content type to text/html
+	 *
+	 * @return Response
+	 */
 	public function setHTML(): Response {
 		$this->setHeader("Content-Type: text/html");
 		return $this;
 	}
 
+	/**
+	 * Sets the response content type to application/json
+	 * @return Response
+	 */
 	public function setJSON(): Response {
 		$this->setHeader("Content-Type: application/json");
 		return $this;
 	}
 
+	/**
+	 * Sets the response content type to text/plain
+	 * @return Response
+	 */
 	public function setHeader(string $header): void {
 		$this->headers[] = $header;
 	}
@@ -44,6 +57,11 @@ class Response {
 		return $this->headers;
 	}
 
+	/**
+	 * Sets the response content
+	 * @param string|false $content
+	 * @return Response
+	 */
 	public function setContent(string|false $content): Response {
 		if ($content === false) {
 			$this->content = "";
